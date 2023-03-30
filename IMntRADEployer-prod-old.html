@@ -1,0 +1,2250 @@
+<HTML>
+	<HEAD>
+		<meta http-equiv="Content-Style-Type" content="text/css">
+			<TITLE>
+        RADSys Client Setup
+    </TITLE>
+			<LINK href="Styles.css" rel=stylesheet type="text/css">
+				<script TYPE="text/javascript">
+					<!--
+        var MyMode;
+        var CanAdd;
+        var CanEdit;
+        var CanDelete;
+        var CanView;
+        var bChangePeriod = false;
+        var bShowError = true;
+        CanAdd = false;
+        CanEdit = false;
+        CanDelete = false;
+        CanView = false;
+        <Security: MntRADEmployer_Add>CanAdd = true;</Security><Security: MntRADEmployer_Edit>CanEdit = true;</Security><Security: MntRADEmployer_View>CanView = true;</Security>
+//Browse Vars
+    var bDoDisableTab;
+        var CanAddBrw;
+        var CanEditBrw;
+        var CanDeleteBrw;
+        var CanViewBrw;
+        var CanSaveBrw;
+        var OldMode;
+        CanAddBrw = false;
+        CanEditBrw = false;
+        CanDeleteBrw = false;
+        CanViewBrw = false;
+        CanSaveBrw = true;
+        <Security: IBrwCnRADMember_Emp_AddClick>CanAddBrw = true;</Security><Security: IBrwCnRADMember_Emp_EditClick>CanEditBrw = true;</Security><Security: IBrwCnRADMember_Emp_DeleteClick>CanDeleteBrw = true;</Security><Security: IBrwCnRADMember_Emp_ViewClick>CanViewBrw = true;</Security>
+
+var bMemberBrw = false;
+var bDidMemberAlready = false;
+var bInMemberEditMode = false;
+
+                //Browse Vars End
+                function processReqChange() {
+                    // only if req shows "complete"
+                    if (req.readyState == 4) {
+                        // only if "OK"
+                        if (req.status == 200) { //alert(MyMode)
+                            document.all.item("divLoadingIndicator").innerHTML = '';
+                            if (MyMode == 'VIEW') {
+                                response = req.responseXML.documentElement;
+                                if (response.getElementsByTagName('RESULT')[0].firstChild.data == 'TRUE') {
+                                    SetValuesXML(req);
+                                    EncodeField(false);
+                                    DisableField(true);
+                                    ShowToolbarButton(true, true, false, false, true);
+                                    DisableToolBar(true, true, true, true, true, true, true, true, true, true, false, 'IMntRADEmployer')
+                                    ShowMoveButton(true, true, true, true);
+                                }
+                                else {
+                                    alert(response.getElementsByTagName('CARGO')[0].firstChild.data);
+                                }
+                            }
+                            if (MyMode == 'EDIT') {
+                                response = req.responseXML.documentElement;
+                                if (response.getElementsByTagName('RESULT')[0].firstChild.data == 'TRUE') {
+                                    DisableField(true);
+                                    DisableToolBar(true, true, true, true, true, true, true, true, true, true, false, 'IMntRADEmployer')
+                                    ShowToolbarButton(true, true, false, false, true);
+                                    ShowMoveButton(true, true, true, true);
+                                    document.all.item("cmdMain").disabled = false;
+                                    document.all.item("cmdLogo").disabled = false;
+                                    document.all.item("cmdComm").disabled = true;
+                                    document.all.item("cmdNotes").disabled = false;
+                                    document.all.item("cmdFin").disabled = true;
+                                    document.all.item("cmdFund").disabled = false;
+                                    document.all.item("cmdMember").disabled = false;
+                                    bShowError = false
+                                    MyMode = 'VIEW';
+                                }
+                                else {
+                                    alert(response.getElementsByTagName('CARGO')[0].firstChild.data);
+                                    DisableToolBar(true, true, true, true, true, true, true, true, true, true, true, 'IMntRADEmployer')
+                                    ShowToolbarButton(false, false, true, true, false);
+                                    ShowMoveButton(true, true, true, true);
+                                }
+                            }
+                            if (MyMode == 'VIEWEDIT') {
+                                response = req.responseXML.documentElement;
+                                if (response.getElementsByTagName('RESULT')[0].firstChild.data == 'TRUE') {
+                                    //  SetValuesXML(response.childNodes[1]);
+                                    SetValuesXML(req);
+                                    EncodeField(false);
+                                    ScreenEditMode();
+                                    bShowError = false
+                                }
+                                else {
+                                    alert(response.getElementsByTagName('CARGO')[0].firstChild.data);
+                                }
+                            }
+                            if (MyMode == 'DELETE') {
+                                response = req.responseXML.documentElement;
+                                if (response.getElementsByTagName('RESULT')[0].firstChild.data == 'TRUE') {
+                                    SetValuesXML(req);
+                                    EncodeField(false);
+                                    DisableField(false);
+                                    document.frmMaint.EmpName.focus();
+                                    ShowToolbarButton(true, true, true, true, true);
+                                    ShowMoveButton(true, true, true, true);
+                                }
+                                else {
+                                    alert(response.getElementsByTagName('CARGO')[0].firstChild.data);
+                                }
+                            }
+                            if (MyMode == 'ADD') {
+                                response = req.responseXML.documentElement;
+                                if (response.getElementsByTagName('RESULT')[0].firstChild.data == 'TRUE') {
+                                    document.frmMaint.RADEmployerID.value = response.getElementsByTagName('CARGO')[0].firstChild.data;
+                                    EncodeField(false);
+                                    DisableField(true);
+                                    DisableToolBar(true, true, true, true, true, true, true, true, true, true, false, 'IMntRADEmployer')
+                                    ShowToolbarButton(true, true, false, false, true);
+                                    ShowMoveButton(true, true, true, true);
+                                    document.all.item("cmdMain").disabled = false;
+                                    document.all.item("cmdLogo").disabled = false;
+                                    document.all.item("cmdComm").disabled = true;
+                                    document.all.item("cmdNotes").disabled = false;
+                                    document.all.item("cmdFin").disabled = true;
+                                    document.all.item("cmdFund").disabled = false;
+                                    document.all.item("cmdMember").disabled = false;
+                                    bShowError = false
+                                    MyMode = 'VIEW';
+                                }
+                                else {
+                                    alert(response.getElementsByTagName('CARGO')[0].firstChild.data);
+                                    DisableToolBar(true, true, true, true, true, true, true, true, true, true, true, 'IMntRADEmployer')
+                                    ShowToolbarButton(false, false, true, true, false);
+                                    ShowMoveButton(true, true, true, true);
+                                }
+                            }
+                            if (MyMode == 'MOVETOP') {
+                                response = req.responseXML.documentElement;
+                                if (response.getElementsByTagName('RESULT')[0].firstChild.data == 'TRUE') {
+                                    SetValuesXML(req);
+                                    EncodeField(false);
+                                    DisableField(true);
+                                    ShowToolbarButton(true, true, false, false, true);
+                                    ShowMoveButton(false, false, true, true);
+                                }
+                                else {
+                                    alert(response.getElementsByTagName('CARGO')[0].firstChild.data);
+                                }
+                            }
+                            if (MyMode == 'MOVEPREVIOUS') {
+                                response = req.responseXML.documentElement;
+                                if (response.getElementsByTagName('RESULT')[0].firstChild.data == 'TRUE') {
+                                    SetValuesXML(req);
+                                    EncodeField(false);
+                                    DisableField(true);
+                                    ShowToolbarButton(true, true, false, false, true);
+                                    ShowMoveButton(true, true, true, true);
+                                }
+                                else {
+                                    SetValuesXML(req);
+                                    EncodeField(false);
+                                    DisableField(true);
+                                    ShowToolbarButton(true, true, false, false, true);
+                                    ShowMoveButton(false, false, true, true);
+                                }
+                            }
+                            if (MyMode == 'MOVENEXT') {
+                                response = req.responseXML.documentElement;
+                                if (response.getElementsByTagName('RESULT')[0].firstChild.data == 'TRUE') {
+                                    SetValuesXML(req);
+                                    EncodeField(false);
+                                    DisableField(true);
+                                    ShowToolbarButton(true, true, false, false, true);
+                                    ShowMoveButton(true, true, true, true);
+                                }
+                                else {
+                                    SetValuesXML(req);
+                                    EncodeField(false);
+                                    DisableField(true);
+                                    ShowToolbarButton(true, true, false, false, true);
+                                    ShowMoveButton(true, true, false, false);
+                                }
+                            }
+                            if (MyMode == 'MOVEBOTTOM') {
+                                response = req.responseXML.documentElement;
+                                if (response.getElementsByTagName('RESULT')[0].firstChild.data == 'TRUE') {
+                                    SetValuesXML(req);
+                                    EncodeField(false);
+                                    DisableField(true);
+                                    ShowToolbarButton(true, true, false, false, true);
+                                    ShowMoveButton(true, true, false, false);
+                                }
+                                else {
+                                    alert(response.getElementsByTagName('CARGO')[0].firstChild.data);
+                                }
+                            }
+                            //Browses
+                            //Browses
+                            if (MyMode == 'FUNDBRW') {
+                                bDoDisableTab = false;
+                                MyMode = MySubMode;
+                                document.all.item("divFund").innerHTML = req.responseText;
+                                DisableBrowseToolBarEmployerProduct(true, true, true, true, 'IBrwCnEmployerProduct', '', 'findBrowseEmployerProduct()');
+                                if (CanAddBrw) {
+                                    document.all.item("DivEmployerProductAdd").innerHTML = '<a href="IMntEmployerProduct.aspx?ACTION=addmode&RADEmployerId=' + document.frmMaint.RADEmployerID.value + '" id="add"><IMG SRC="Images/new.png" align="absmiddle" border=0 alt="Add a new entry"></a>';
+                                }
+                                DisableFieldEmployerProduct(false);
+                                EnableTabs();
+                                DisableTabs();
+                                bDidFundBrwAlready = true;
+                            }
+                            if (MyMode == 'FUNDBRWOTHER') {
+                                bDoDisableTab = false;
+                                MyMode = MySubMode;
+                                document.all.item("BrwEmployerProduct").innerHTML = req.responseText;
+                                DisableBrowseToolBarEmployerProduct(true, true, true, true, 'IBrwCnEmployerProduct', '', 'findBrowseEmployerProduct()');
+                                if (CanAddBrw) {
+                                    document.all.item("DivEmployerProductAdd").innerHTML = '<a href="IMntEmployerProduct.aspx?ACTION=addmode&RADEmployerId=' + document.frmMaint.RADEmployerID.value + '" id="add"><IMG SRC="Images/new.png" align="absmiddle" border=0 alt="Add a new entry"></a>';
+                                }
+                                DisableFieldEmployerProduct(false);
+                                EnableTabs();
+                                DisableTabs();
+                                bDidFundBrwAlready = true;
+                            }
+                            if (MyMode == 'MEMBERBRW') {
+                                bDoDisableTab = false;
+                                MyMode = MySubMode;
+                                document.all.item("divBrwMember").innerHTML = req.responseText;
+                                document.all.item("divSessionDetail").innerHTML = document.all.item("SessionHref").innerHTML
+                                document.all.item("divFundTotals").innerHTML = document.all.item("divHidFundTotals").innerHTML
+                                DisableBrowseToolBarRADMember_Emp(true, true, true, true, 'IBrwCnRADMember_Emp', '', 'findBrowseRADMember_Emp()');
+                                DisableBrowseToolBarMember(true, false, false, true, true, true, 'IBrwCnMember', '', 'findBrowseMember()');
+                                DisableFieldRADMember_Emp(false);
+                                EnableTabs();
+                                DisableTabs();
+                                bDidMemberBrwAlready = true;
+                            }
+                            if (MyMode == 'MEMBERBRWOTHER') {
+                                bDoDisableTab = false;
+                                MyMode = MySubMode;
+                                document.all.item("BrwRADMember_Emp").innerHTML = req.responseText;
+                                document.all.item("divSessionDetail").innerHTML = document.all.item("SessionHref").innerHTML
+                                document.all.item("divFundTotals").innerHTML = document.all.item("divHidFundTotals").innerHTML
+                                DisableBrowseToolBarRADMember_Emp(true, true, true, true, 'IBrwCnRADMember_Emp', '', 'findBrowseRADMember_Emp()');
+                                DisableBrowseToolBarMember(true, false, false, true, true, true, 'IBrwCnMember', '', 'findBrowseMember()');
+                                DisableFieldRADMember_Emp(false);
+                                EnableTabs();
+                                DisableTabs();
+                                bDidMemberBrwAlready = true;
+                            }
+                            //      if(MyMode == 'EXPORT')
+                            //      {
+                            //       MyMode = MySubMode;
+                            //       document.all.item("BrwRADMember_Emp").innerHTML = req.responseText;
+                            //
+                            //      }
+                            if ((MyMode == 'MOVENEXT') || (MyMode == 'MOVEPREVIOUS') || (MyMode == 'MOVEBOTTOM') || (MyMode == 'MOVETOP')) {
+
+                                if (!ReFocus) {
+                                    ReFocus = true;
+                                    ReFocusTab();
+                                } else {
+                                    ReFocus = false;
+                                }
+                            }
+                            if ((MyMode == 'MOVENEXT') || (MyMode == 'MOVEPREVIOUS') || (MyMode == 'MOVEBOTTOM') || (MyMode == 'MOVETOP')) {
+                                return true;
+                            }
+                            //End Browses
+                            if (bShowError) {
+                                if (response.getElementsByTagName('ImportError')[0].firstChild.data != "X") {
+                                    alert(response.getElementsByTagName('ImportError')[0].firstChild.data);
+                                }
+                                //document.frmMaint.ImportError.value = "X"
+                                bShowError = false;
+                                tabOnClick(9)
+                            }
+                            if (bChangePeriod) {
+                                bChangePeriod = false;
+                                tabOnClick(9)
+                            }
+                            if (document.frmMaint.thecurrenttab.value == "") {
+                                if (response.getElementsByTagName('TabPageChangeNumber')[0].firstChild.data != "0") {
+                                    tabOnClick(parseInt(response.getElementsByTagName('TabPageChangeNumber')[0].firstChild.data));
+                                } else {
+                                    tabOnClick(1);
+                                }
+                            }
+
+                        }
+                        else {
+                            alert("There was a problem retrieving the XML data:\n" + req.statusText);
+                        }
+                    }
+                }
+
+                function ScreenAddMode() {
+                    MyMode = 'ADD';
+                    document.frmMaint.RADEmployerID.value = '0';
+                    CopyOld(true);
+                    document.frmMaint.EmpName.value = '';
+                    document.frmMaint.bIsJigsaw.checked = false;
+                    document.frmMaint.InsurerRefNo.value = '';
+                    document.frmMaint.EmpRef.value = '';
+                    document.frmMaint.TelephoneNumber.value = '';
+                    document.frmMaint.FaxNumber.value = '';
+                    document.frmMaint.StreetAddressLine1.value = '';
+                    document.frmMaint.StreetAddressLine2.value = '';
+                    document.frmMaint.StreetAddressLine3.value = '';
+                    document.frmMaint.StreetAddressLine4.value = '';
+                    document.frmMaint.StreetAddressCode.value = '';
+                    document.frmMaint.PostalAddressLine1.value = '';
+                    document.frmMaint.PostalAddressLine2.value = '';
+                    document.frmMaint.PostalAddressLine3.value = '';
+                    document.frmMaint.PostalAddressLine4.value = '';
+                    document.frmMaint.PostalAddressCode.value = '';
+                    document.frmMaint.EmployerRegNo.value = '';
+                    document.frmMaint.EmployerLogo.value = '';
+                    document.frmMaint.ContactPerson.value = '';
+                    document.frmMaint.Email.value = '';
+                    document.frmMaint.TelephoneNumber2.value = '';
+                    document.frmMaint.AdministrationRate.value = '0';
+                    document.frmMaint.EmpDebitOrder.checked = false;
+                    document.frmMaint.EmpNotes.value = '';
+                    document.frmMaint.IsArrear.checked = false;
+                    document.frmMaint.CollectedInArrear.checked = false;
+                    document.frmMaint.IsQuote.checked = false;
+                    document.frmMaint.EmpJoinDateDay.value = '';
+                    document.frmMaint.EmpJoinDateMonth.value = '';
+                    document.frmMaint.EmpJoinDateYear.value = '';
+                    document.frmMaint.EmpLeftDateDay.value = '';
+                    document.frmMaint.EmpLeftDateMonth.value = '';
+                    document.frmMaint.EmpLeftDateYear.value = '';
+                    var currentTime = new Date();
+                    var month = currentTime.getMonth() + 1;
+                    var day = currentTime.getDate();
+                    var year = currentTime.getFullYear();
+
+                    document.frmMaint.EmpCaptureDateDay.value = day;
+                    document.frmMaint.EmpCaptureDateMonth.value = month;
+                    document.frmMaint.EmpCaptureDateYear.value = year;
+                    document.frmMaint.AdministratorId.value = '1';
+                    document.frmMaint.DescRADUserId.value = '';
+                    document.frmMaint.RADUserId.value = '0';
+                    document.frmMaint.NatureOfBusinessId.value = '0';
+                    document.frmMaint.DescNatureOfBusinessId.value = '';
+                    document.frmMaint.RADRegionId.value = '0';
+                    document.frmMaint.DescRADRegionId.value = '';
+                    document.frmMaint.RADSysId.value = '';
+                    document.frmMaint.EmpCommonName.value = '';
+                    document.MemberUpload.GLPeriodId.value = '0';
+                    document.frmMaint.IsAutoCalculate.checked = false;
+                    document.frmMaint.AgentId.value = '0';
+                    document.frmMaint.DescAgentId.value = '';
+                    document.frmMaint.AgentContactId.value = '0';
+                    document.frmMaint.DescAgentContactId.value = '';
+                    DisableField(false);
+                    ShowToolbarButton(false, false, true, true, false);
+                    ShowMoveButton(true, true, true, true);
+                    DisableAll();///Done to stop interferance with the load of the fields
+                    document.all.item("cmdLogo").disabled = true;
+                    document.all.item("cmdNotes").disabled = true;
+                    document.all.item("cmdComm").disabled = true;
+                    document.all.item("cmdFin").disabled = true;
+                    document.all.item("cmdFund").disabled = true;
+                    document.all.item("cmdMember").disabled = true;
+                    tabOnClick(1);///tabOnClick(1) is called inside EnableAll()
+                    CheckMode("EnableAll()");///Done to signal the end of the loading process
+
+                    document.frmMaint.EmpName.focus();
+                }
+
+                function ScreenEditMode() {
+                    MyMode = 'EDIT';
+                    CopyOld(true);
+                    DisableField(false);
+                    ShowToolbarButton(false, false, true, true, false);
+                    ShowMoveButton(true, true, true, true);
+                    document.frmMaint.EmpName.focus();
+                    switch (document.frmMaint.thecurrenttab.value) {
+                        case "1":
+                            // document.all.item("cmdNotes").disabled = true;
+                            document.all.item("cmdLogo").disabled = true;
+                            document.all.item("cmdComm").disabled = true;
+                            document.all.item("cmdFin").disabled = true;
+                            document.all.item("cmdFund").disabled = true;
+                            document.all.item("cmdMember").disabled = true;
+                            document.getElementById("divMain").style.zIndex = "50";
+                            break
+                        case "2":
+                            // document.all.item("cmdMain").disabled = true;
+                            document.all.item("cmdLogo").disabled = true;
+                            document.all.item("cmdComm").disabled = true;
+                            document.all.item("cmdFin").disabled = true;
+                            document.all.item("cmdFund").disabled = true;
+                            document.all.item("cmdMember").disabled = true;
+                            break
+                        case "3":
+                            document.all.item("cmdMain").disabled = true;
+                            document.all.item("cmdComm").disabled = true;
+                            document.all.item("cmdFin").disabled = true;
+                            document.all.item("cmdFund").disabled = true;
+                            document.all.item("cmdMember").disabled = true;
+                            break
+                        case "4":
+                            document.all.item("cmdMain").disabled = true;
+                            document.all.item("cmdLogo").disabled = true;
+                            document.all.item("cmdFin").disabled = true;
+                            document.all.item("cmdFund").disabled = true;
+                            document.all.item("cmdMember").disabled = true;
+                            break
+                        case "5":
+                            document.all.item("cmdMain").disabled = true;
+                            document.all.item("cmdLogo").disabled = true;
+                            document.all.item("cmdComm").disabled = true;
+                            document.all.item("cmdFund").disabled = true;
+                            document.all.item("cmdMember").disabled = true;
+                            break
+                        case "6":
+                            document.all.item("cmdMain").disabled = true;
+                            document.all.item("cmdLogo").disabled = true;
+                            document.all.item("cmdComm").disabled = true;
+                            document.all.item("cmdMember").disabled = true;
+                            document.all.item("cmdFin").disabled = true;
+                            break
+                        case "7":
+                            document.all.item("cmdMain").disabled = true;
+                            document.all.item("cmdLogo").disabled = true;
+                            document.all.item("cmdComm").disabled = true;
+                            document.all.item("cmdFund").disabled = true;
+                            document.all.item("cmdMember").disabled = true;
+                            document.all.item("cmdFin").disabled = true;
+                            break
+                        case "8":
+                            document.all.item("cmdMain").disabled = true;
+                            document.all.item("cmdLogo").disabled = true;
+                            document.all.item("cmdComm").disabled = true;
+                            document.all.item("cmdFund").disabled = true;
+                            document.all.item("cmdMember").disabled = true;
+                            document.all.item("cmdFin").disabled = true;
+                            break
+                        case "9":
+                            document.all.item("cmdMain").disabled = true;
+                            document.all.item("cmdLogo").disabled = true;
+                            document.all.item("cmdComm").disabled = true;
+                            document.all.item("cmdFund").disabled = true;
+                            document.all.item("cmdFin").disabled = true;
+                            break
+
+                    }
+                }
+
+                function ScreenSave() {
+                    if (!CheckFields()) {
+                        return false;
+                    }
+                    ShowToolbarButton(false, false, true, true, false);
+                    DisableToolBar(false, false, false, false, false, false, false, false, false, false, true, 'IMntRADEmployer')
+                    EncodeField(true);
+                    if (MyMode == 'ADD') {
+                        document.all.item("divLoadingIndicator").innerHTML = '<img src="Images/waiting.gif" border="0" alt="" >';
+                        loadXMLDoc('IMntRADEmployer.aspx?ACTION=AddRecord' + BuildURL());
+                        // InitializeTimer();
+                    }
+                    if (MyMode == 'EDIT') {
+                        document.all.item("divLoadingIndicator").innerHTML = '<img src="Images/waiting.gif" border="0" alt="" >';
+                        loadXMLDoc('IMntRADEmployer.aspx?ACTION=EditRecord' + BuildURL());
+                        // InitializeTimer();
+                    }
+                }
+
+                function ScreenDelete() {
+                    if (confirm('Are you sure you want to delete this record?')) {
+                        MyMode = 'DELETE'; alert('delete record');
+                    }
+                }
+
+                function ScreenRevert() {
+                    if (MyMode == 'ADD') {
+                        MoveTop();
+                    }
+                    else {
+                        CopyOld(false);
+                        DisableField(true);
+                        ShowToolbarButton(true, true, false, false, true);
+                        ShowMoveButton(true, true, true, true);
+                        document.all.item("cmdLogo").disabled = false;
+                        document.all.item("cmdComm").disabled = true;
+                        document.all.item("cmdFin").disabled = true;
+                        document.all.item("cmdFund").disabled = false;
+                        document.all.item("cmdMember").disabled = false;
+                        MyMode = 'VIEW';
+                    }
+                }
+                function GetNumberForName(DOMNode, nodename) {
+                    var i = 0;
+                    for (i = 0; i < parseInt(DOMNode.childNodes.length); i++) {
+                        if (DOMNode.childNodes[i].nodeName == nodename) {
+                            return i;
+                        }
+                    }
+                }
+                function parseXML(text) {
+                    if (window.DOMParser) {
+                        parser = new DOMParser();
+                        doc = parser.parseFromString(text, "text/xml");
+                    }
+                    else { // Internet Explorer
+                        doc = new ActiveXObject("Microsoft.XMLDOM");
+                        doc.async = "false";
+                        doc.loadXML(text);
+                    }
+                    return doc;
+                }
+                function myFunction(xml, NameNod) {
+                    var xmlDoc = xml;
+                    var x = xmlDoc.getElementsByTagName(NameNod)[0];
+                    var y = x.childNodes[0];
+                    document.getElementById("demo").innerHTML =
+                        y.nodeValue;
+                }
+                function SetValuesXML(response) {
+                    var dtPart;
+
+                    document.frmMaint.RADEmployerID.value = response.responseXML.getElementsByTagName('RADEmployerID')[0].textContent;//xmlDoc.getElementsByTagName("RADEmployerID")[0];//response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'RADEmployerID'))].text;
+                    document.frmMaint.hidInsurerRefNo.value = response.responseXML.getElementsByTagName('InsurerRefNo')[0].textContent;//response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'InsurerRefNo'))].text;
+                    document.frmMaint.hidEmpName.value = response.responseXML.getElementsByTagName('EmpName')[0].textContent;//response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'EmpName'))].text;
+                    document.frmMaint.hidEmpRef.value = response.responseXML.getElementsByTagName('EmpRef')[0].textContent;// response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'EmpRef'))].text;
+                    document.frmMaint.hidTelephoneNumber.value = response.responseXML.getElementsByTagName('TelephoneNumber')[0].textContent;//response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'TelephoneNumber'))].text;
+                    document.frmMaint.hidFaxNumber.value = response.responseXML.getElementsByTagName('FaxNumber')[0].textContent;// response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'FaxNumber'))].text;
+                    document.frmMaint.hidStreetAddressLine1.value = response.responseXML.getElementsByTagName('StreetAddressLine1')[0].textContent;//response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'StreetAddressLine1'))].text;
+                    document.frmMaint.hidStreetAddressLine2.value = response.responseXML.getElementsByTagName('StreetAddressLine2')[0].textContent;//response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'StreetAddressLine2'))].text;
+                    document.frmMaint.hidStreetAddressLine3.value = response.responseXML.getElementsByTagName('StreetAddressLine3')[0].textContent;//response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'StreetAddressLine3'))].text;
+                    document.frmMaint.hidStreetAddressLine4.value = response.responseXML.getElementsByTagName('StreetAddressLine4')[0].textContent;//response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'StreetAddressLine4'))].text;
+                    document.frmMaint.hidStreetAddressCode.value = response.responseXML.getElementsByTagName('StreetAddressCode')[0].textContent;//response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'StreetAddressCode'))].text;
+                    document.frmMaint.hidPostalAddressLine1.value = response.responseXML.getElementsByTagName('PostalAddressLine1')[0].textContent;//response.childNodes[0].childNodes[parseInt(GetNumberForName(response.childNodes[0], 'PostalAddressLine1'))].text;
+                    document.frmMaint.hidPostalAddressLine2.value = response.responseXML.getElementsByTagName('PostalAddressLine2')[0].textContent;
+                    document.frmMaint.hidPostalAddressLine3.value = response.responseXML.getElementsByTagName('PostalAddressLine3')[0].textContent;
+                    document.frmMaint.hidPostalAddressLine4.value = response.responseXML.getElementsByTagName('PostalAddressLine4')[0].textContent;
+                    document.frmMaint.hidPostalAddressCode.value = response.responseXML.getElementsByTagName('PostalAddressCode')[0].textContent;
+                    document.frmMaint.hidEmployerRegNo.value = response.responseXML.getElementsByTagName('EmployerRegNo')[0].textContent;
+                    document.frmMaint.hidEmployerLogo.value = response.responseXML.getElementsByTagName('EmployerLogo')[0].textContent;
+                    document.frmMaint.hidContactPerson.value = response.responseXML.getElementsByTagName('ContactPerson')[0].textContent;
+                    document.frmMaint.hidEmail.value = response.responseXML.getElementsByTagName('Email')[0].textContent;
+                    document.frmMaint.hidTelephoneNumber2.value = response.responseXML.getElementsByTagName('TelephoneNumber2')[0].textContent;
+                    document.frmMaint.AdministrationRate.value = response.responseXML.getElementsByTagName('AdministrationRate')[0].textContent;
+                    if ((response.responseXML.getElementsByTagName('EmpDebitOrder')[0].textContent).toLowerCase() == 'true') {
+                        document.frmMaint.EmpDebitOrder.checked = true;
+                    } else {
+                        document.frmMaint.EmpDebitOrder.checked = false;
+                    }
+                    document.frmMaint.hidEmpNotes.value = response.responseXML.getElementsByTagName('EmpNotes')[0].textContent;
+                    if ((response.responseXML.getElementsByTagName('IsArrear')[0].textContent).toLowerCase() == 'true') {
+                        document.frmMaint.IsArrear.checked = true;
+                    } else {
+                        document.frmMaint.IsArrear.checked = false;
+                    }
+                    if ((response.responseXML.getElementsByTagName('CollectedInArrear')[0].textContent).toLowerCase() == 'true') {
+                        document.frmMaint.CollectedInArrear.checked = true;
+                    } else {
+                        document.frmMaint.CollectedInArrear.checked = false;
+                    }
+                    if ((response.responseXML.getElementsByTagName('IsQuote')[0].textContent).toLowerCase() == 'true') {
+                        document.frmMaint.IsQuote.checked = true;
+                    } else {
+                        document.frmMaint.IsQuote.checked = false;
+                    }
+                    dtPart = new Date(response.responseXML.getElementsByTagName('EmpJoinDate')[0].textContent);
+                    if (dtPart.getDate() == 1 && dtPart.getMonth() + 1 == 1 && dtPart.getFullYear() == 2070) {
+                        document.frmMaint.EmpJoinDateDay.value = '';
+                        document.frmMaint.EmpJoinDateMonth.value = '';
+                        document.frmMaint.EmpJoinDateYear.value = '';
+                    }
+                    else {
+                        document.frmMaint.EmpJoinDateDay.value = dtPart.getDate();
+                        document.frmMaint.EmpJoinDateMonth.value = dtPart.getMonth() + 1;
+                        document.frmMaint.EmpJoinDateYear.value = dtPart.getFullYear();
+                    }
+                    dtPart = new Date(response.responseXML.getElementsByTagName('EmpLeftDate')[0].textContent);
+                    if (dtPart.getDate() == 1 && dtPart.getMonth() + 1 == 1 && dtPart.getFullYear() == 2070) {
+                        document.frmMaint.EmpLeftDateDay.value = '';
+                        document.frmMaint.EmpLeftDateMonth.value = '';
+                        document.frmMaint.EmpLeftDateYear.value = '';
+                    }
+                    else {
+                        document.frmMaint.EmpLeftDateDay.value = dtPart.getDate();
+                        document.frmMaint.EmpLeftDateMonth.value = dtPart.getMonth() + 1;
+                        document.frmMaint.EmpLeftDateYear.value = dtPart.getFullYear();
+                    }
+                    dtPart = new Date(response.responseXML.getElementsByTagName('EmpCaptureDate')[0].textContent);
+                    if (dtPart.getDate() == 1 && dtPart.getMonth() + 1 == 1 && dtPart.getFullYear() == 2070) {
+                        document.frmMaint.EmpCaptureDateDay.value = '';
+                        document.frmMaint.EmpCaptureDateMonth.value = '';
+                        document.frmMaint.EmpCaptureDateYear.value = '';
+                    }
+                    else {
+                        document.frmMaint.EmpCaptureDateDay.value = dtPart.getDate();
+                        document.frmMaint.EmpCaptureDateMonth.value = dtPart.getMonth() + 1;
+                        document.frmMaint.EmpCaptureDateYear.value = dtPart.getFullYear();
+                    }
+                    document.frmMaint.AdministratorId.value = response.responseXML.getElementsByTagName('AdministratorId')[0].textContent;
+                    //document.frmMaint.DescAdministratorId.value = decode64(response.responseXML.getElementsByTagName('DescAdministratorId')[0].textContent);
+                    document.frmMaint.RADUserId.value = response.responseXML.getElementsByTagName('RADUserId')[0].textContent;
+                    document.frmMaint.DescRADUserId.value = decode64(response.responseXML.getElementsByTagName('DescRADUserId')[0].textContent);
+                    document.frmMaint.NatureOfBusinessId.value = response.responseXML.getElementsByTagName('NatureOfBusinessId')[0].textContent;
+                    document.frmMaint.DescNatureOfBusinessId.value = decode64(response.responseXML.getElementsByTagName('DescNatureOfBusinessId')[0].textContent);
+                    document.frmMaint.RADRegionId.value = response.responseXML.getElementsByTagName('RADRegionId')[0].textContent;
+                    document.frmMaint.DescRADRegionId.value = decode64(response.responseXML.getElementsByTagName('DescRADRegionId')[0].textContent);
+                    document.frmMaint.hidRADSysId.value = response.responseXML.getElementsByTagName('RADSysId')[0].textContent;
+                    document.frmMaint.hidEmpCommonName.value = response.responseXML.getElementsByTagName('EmpCommonName')[0].textContent;
+                    document.frmMaint.AgentId.value = response.responseXML.getElementsByTagName('AgentId')[0].textContent;
+                    document.frmMaint.DescAgentId.value = decode64(response.responseXML.getElementsByTagName('DescAgentId')[0].textContent);
+                    document.frmMaint.AgentContactId.value = response.responseXML.getElementsByTagName('AgentContactId')[0].textContent;
+                    document.frmMaint.DescAgentContactId.value = decode64(response.responseXML.getElementsByTagName('DescAgentContactId')[0].textContent);
+
+                    if ((response.responseXML.getElementsByTagName('IsAutoCalculate')[0].textContent).toLowerCase() == 'true') {
+                        document.frmMaint.IsAutoCalculate.checked = true;
+                    } else {
+                        document.frmMaint.IsAutoCalculate.checked = false;
+                    }
+                    if ((response.responseXML.getElementsByTagName('bIsJigsaw')[0].textContent).toLowerCase() == 'true') {
+                        document.frmMaint.bIsJigsaw.checked = true;
+                    } else {
+                        document.frmMaint.bIsJigsaw.checked = false;
+                    }
+
+
+                    document.MemberUpload.DescGLPeriodId.value = decode64(response.responseXML.getElementsByTagName('DescGLPeriodId')[0].textContent);;
+                    //Logo Information
+                    if (response.responseXML.getElementsByTagName('EmployerLogo')[0].textContent == "") {
+                        document.getElementById("DocumentImage").innerHTML = "No image uploaded."
+                    } else if (decode64(response.responseXML.getElementsByTagName('EmployerLogo')[0].textContent) == "No image uploaded.") {
+                        document.getElementById("DocumentImage").innerHTML = "No image uploaded."
+                    } else {
+                        document.getElementById("DocumentImage").innerHTML = "<img src='docs/" + decode64(response.responseXML.getElementsByTagName('EmployerLogo')[0].textContent) + "' border=0 align=absmiddle>"
+                    }
+                    document.all.item("divSessionDetail").innerHTML = decode64(response.responseXML.getElementsByTagName('SessionDetail')[0].textContent);
+                    document.all.item("divAllowPeriod").innerHTML = "<INPUT TYPE='HIDDEN' id='AllowPeriodId' NAME='AllowPeriodId'  VALUE=" + response.responseXML.getElementsByTagName('AllowPeriodId')[0].textContent + " >";
+                    // alert(document.all.item("divAllowPeriod").innerHTML)
+                    // alert(document.all.AllowPeriodId.value)
+                    var sLinkVisible
+                    sLinkVisible = response.responseXML.getElementsByTagName('TxtLinkVisible')[0].textContent;
+                    if (sLinkVisible == 'Y') {
+                        document.all.item("LogLink").style.visibility = "visible"
+                        //alert(document.all.item("LogLink").innerHTML)
+                        document.all.item("LogLink").innerHTML = "<a target=_blank href='Docs/MemberImport_" + response.responseXML.getElementsByTagName('TxtLink')[0].textContent + ".txt'>View Import Log </a>"
+                        //alert(document.all.item("LogLink").innerHTML)
+                    } else {
+                        document.all.item("LogLink").style.visibility = "hidden"
+                        document.all.item("LogLink").innerHTML = ""
+                    }
+                    var sSysBtnDisable
+                    sSysBtnDisable = response.responseXML.getElementsByTagName('BtnSysDisable')[0].textContent;
+                    if (sSysBtnDisable == 'Y') {
+                        document.all.item("btnRecalc").disabled = true;
+                        document.all.item("btnRecalcEff").disabled = false;
+                    } else {
+                        document.all.item("btnRecalc").disabled = false;
+                        document.all.item("btnRecalcEff").disabled = true;
+
+                    }
+                    //***************************************************
+                    if ((response.responseXML.getElementsByTagName('IsLockedSys')[0].textContent).toLowerCase() == 'true') {
+                        //alert(10)
+                        document.all.item("btnLock").disabled = true;
+                        document.all.item("btnUnlock").disabled = false;
+                        document.frmMaint.IsLocked.value = "Y";
+                        document.all.item("sLock").style.visibility = "visible";
+                        if (parseInt(document.MemberUpload.GLPeriodId.value) > parseInt(document.all.SysPeriod.value)) {
+                            ;
+                            //   document.all.item("btnLock").disabled =false;
+                            // document.all.item("btnUnlock").disabled = true;
+                            //document.frmMaint.IsLocked.value = "N";
+                            //  document.all.item("sLock").style.visibility = "hidden";
+
+                        }
+                    } else {
+
+                        document.all.item("btnLock").disabled = false;
+                        document.all.item("btnUnlock").disabled = true;
+                        document.frmMaint.IsLocked.value = "N";
+                        document.all.item("sLock").style.visibility = "hidden";
+                    }
+                    var sLockVisible
+                    sLockVisible = response.responseXML.getElementsByTagName('IsAdmin')[0].textContent;
+                    if (sLockVisible == 'Y') {
+                        document.all.item("divLock").style.visibility = "visible"
+                    } else {
+                        document.all.item("divLock").style.visibility = "hidden"
+                    }
+                    document.frmMaint.LockPeriod.value = response.responseXML.getElementsByTagName('LockedPeriodId')[0].textContent;
+
+                }
+
+                function ViewRecord(nRecordId) {
+                    MyMode = 'VIEW';
+                    var currentTime = new Date();
+                    document.all.item("divLoadingIndicator").innerHTML = '<img src="Images/waiting.gif" border="0" alt="" >';
+                    loadXMLDoc('IMntRADEmployer.aspx?ACTION=ViewRecord&RADEmployerID=' + nRecordId + '&dc=' + document.frmMaint.dc.value + '&ImportError=' + document.frmMaint.ImportError.value + '&IsValidate=' + document.frmMaint.IsValidate.value + '&PageRequestTime=' + currentTime.getTime());
+                    ClearBrws();
+                    ReFocus = false;
+                    // InitializeTimer();
+                }
+                function EditRecord(nRecordId) {
+                    MyMode = 'VIEWEDIT';
+                    var currentTime = new Date();
+                    document.all.item("divLoadingIndicator").innerHTML = '<img src="Images/waiting.gif" border="0" alt="" >';
+                    loadXMLDoc('IMntRADEmployer.aspx?ACTION=ViewRecord&RADEmployerID=' + nRecordId + '&PageRequestTime=' + currentTime.getTime());
+                    //  InitializeTimer();
+                }
+                function DeleteRecord(nRecordId) {
+                    MyMode = 'DELETE';
+                    var currentTime = new Date();
+                    document.all.item("divLoadingIndicator").innerHTML = '<img src="Images/waiting.gif" border="0" alt="" >';
+                    loadXMLDoc('IMntRADEmployer.aspx?ACTION=ViewRecord&RADEmployerID=' + nRecordId + '&PageRequestTime=' + currentTime.getTime());
+                    // InitializeTimer();
+                }
+
+                function MoveTop() {
+                    MyMode = 'MOVETOP';
+                    var currentTime = new Date();
+                    document.all.item("divLoadingIndicator").innerHTML = '<img src="Images/waiting.gif" border="0" alt="" >';
+                    loadXMLDoc('IMntRADEmployer.aspx?ACTION=MoveTop&PageRequestTime=' + currentTime.getTime());
+                    ClearBrws();
+                    ReFocus = false;
+                    //InitializeTimer();
+                }
+                function MovePrevious() {
+                    MyMode = 'MOVEPREVIOUS';
+                    var currentTime = new Date();
+                    document.all.item("divLoadingIndicator").innerHTML = '<img src="Images/waiting.gif" border="0" alt="" >';
+                    loadXMLDoc('IMntRADEmployer.aspx?ACTION=MovePrevious&RADEmployerID=' + document.frmMaint.RADEmployerID.value + '&PageRequestTime=' + currentTime.getTime());
+                    ClearBrws();
+                    ReFocus = false;
+                    // InitializeTimer();
+                }
+                function MoveNext() {
+                    MyMode = 'MOVENEXT';
+                    var currentTime = new Date();
+                    document.all.item("divLoadingIndicator").innerHTML = '<img src="Images/waiting.gif" border="0" alt="" >';
+                    loadXMLDoc('IMntRADEmployer.aspx?ACTION=MoveNext&RADEmployerID=' + document.frmMaint.RADEmployerID.value + '&PageRequestTime=' + currentTime.getTime());
+                    ClearBrws();
+                    ReFocus = false;
+                    // InitializeTimer();
+                }
+                function MoveBottom() {
+                    MyMode = 'MOVEBOTTOM';
+                    var currentTime = new Date();
+                    document.all.item("divLoadingIndicator").innerHTML = '<img src="Images/waiting.gif" border="0" alt="" >';
+                    loadXMLDoc('IMntRADEmployer.aspx?ACTION=MoveBottom&PageRequestTime=' + currentTime.getTime());
+                    ClearBrws();
+                    ReFocus = false;
+                    // InitializeTimer();
+                }
+
+                function CopyOld(bToOld) {
+                    if (bToOld) {
+                        document.frmMaint.oldEmpName.value = document.frmMaint.EmpName.value
+                        document.frmMaint.oldInsurerRefNo.value = document.frmMaint.InsurerRefNo.value
+                        document.frmMaint.oldEmpRef.value = document.frmMaint.EmpRef.value
+                        document.frmMaint.oldTelephoneNumber.value = document.frmMaint.TelephoneNumber.value
+                        document.frmMaint.oldFaxNumber.value = document.frmMaint.FaxNumber.value
+                        document.frmMaint.oldStreetAddressLine1.value = document.frmMaint.StreetAddressLine1.value
+                        document.frmMaint.oldStreetAddressLine2.value = document.frmMaint.StreetAddressLine2.value
+                        document.frmMaint.oldStreetAddressLine3.value = document.frmMaint.StreetAddressLine3.value
+                        document.frmMaint.oldStreetAddressLine4.value = document.frmMaint.StreetAddressLine4.value
+                        document.frmMaint.oldStreetAddressCode.value = document.frmMaint.StreetAddressCode.value
+                        document.frmMaint.oldPostalAddressLine1.value = document.frmMaint.PostalAddressLine1.value
+                        document.frmMaint.oldPostalAddressLine2.value = document.frmMaint.PostalAddressLine2.value
+                        document.frmMaint.oldPostalAddressLine3.value = document.frmMaint.PostalAddressLine3.value
+                        document.frmMaint.oldPostalAddressLine4.value = document.frmMaint.PostalAddressLine4.value
+                        document.frmMaint.oldPostalAddressCode.value = document.frmMaint.PostalAddressCode.value
+                        document.frmMaint.oldEmployerRegNo.value = document.frmMaint.EmployerRegNo.value
+                        document.frmMaint.oldEmployerLogo.value = document.frmMaint.EmployerLogo.value
+                        document.frmMaint.oldContactPerson.value = document.frmMaint.ContactPerson.value
+                        document.frmMaint.oldEmail.value = document.frmMaint.Email.value
+                        document.frmMaint.oldTelephoneNumber2.value = document.frmMaint.TelephoneNumber2.value
+                        document.frmMaint.oldAdministrationRate.value = document.frmMaint.AdministrationRate.value
+                        document.frmMaint.oldEmpDebitOrder.value = document.frmMaint.EmpDebitOrder.value
+                        document.frmMaint.oldEmpNotes.value = document.frmMaint.EmpNotes.value
+                        document.frmMaint.oldIsArrear.value = document.frmMaint.IsArrear.value
+                        document.frmMaint.oldCollectedInArrear.value = document.frmMaint.CollectedInArrear.value
+                        document.frmMaint.oldIsQuote.value = document.frmMaint.IsQuote.value
+                        document.frmMaint.oldEmpJoinDateDay.value = document.frmMaint.EmpJoinDateDay.value
+                        document.frmMaint.oldEmpJoinDateMonth.value = document.frmMaint.EmpJoinDateMonth.value
+                        document.frmMaint.oldEmpJoinDateYear.value = document.frmMaint.EmpJoinDateYear.value
+                        document.frmMaint.oldEmpLeftDateDay.value = document.frmMaint.EmpLeftDateDay.value
+                        document.frmMaint.oldEmpLeftDateMonth.value = document.frmMaint.EmpLeftDateMonth.value
+                        document.frmMaint.oldEmpLeftDateYear.value = document.frmMaint.EmpLeftDateYear.value
+                        document.frmMaint.oldEmpCaptureDateDay.value = document.frmMaint.EmpCaptureDateDay.value
+                        document.frmMaint.oldEmpCaptureDateMonth.value = document.frmMaint.EmpCaptureDateMonth.value
+                        document.frmMaint.oldEmpCaptureDateYear.value = document.frmMaint.EmpCaptureDateYear.value
+                        document.frmMaint.oldRADUserId.value = document.frmMaint.DescRADUserId.value
+                        document.frmMaint.oldRADSysId.value = document.frmMaint.RADSysId.value
+                        document.frmMaint.oldEmpCommonName.value = document.frmMaint.EmpCommonName.value
+                        document.frmMaint.oldDescRADUserId.value = document.frmMaint.DescRADUserId.value
+                        document.frmMaint.oldDescNatureOfBusinessId.value = document.frmMaint.DescNatureOfBusinessId.value
+                        document.frmMaint.oldDescRADRegionId.value = document.frmMaint.DescRADRegionId.value
+                        document.frmMaint.oldIsAutoCalculate.value = document.frmMaint.IsAutoCalculate.value
+                        document.MemberUpload.oldDescGLPeriodId.value = document.MemberUpload.DescGLPeriodId.value
+                        document.frmMaint.oldDescAgentId.value = document.frmMaint.DescAgentId.value
+                        document.frmMaint.oldDescAgentContactId.value = document.frmMaint.DescAgentContactId.value
+
+                    }
+                    else {
+                        document.frmMaint.EmpName.value = document.frmMaint.oldEmpName.value;
+                        document.frmMaint.InsurerRefNo.value = document.frmMaint.oldInsurerRefNo.value;
+                        document.frmMaint.EmpRef.value = document.frmMaint.oldEmpRef.value;
+                        document.frmMaint.TelephoneNumber.value = document.frmMaint.oldTelephoneNumber.value;
+                        document.frmMaint.FaxNumber.value = document.frmMaint.oldFaxNumber.value;
+                        document.frmMaint.StreetAddressLine1.value = document.frmMaint.oldStreetAddressLine1.value;
+                        document.frmMaint.StreetAddressLine2.value = document.frmMaint.oldStreetAddressLine2.value;
+                        document.frmMaint.StreetAddressLine3.value = document.frmMaint.oldStreetAddressLine3.value;
+                        document.frmMaint.StreetAddressLine4.value = document.frmMaint.oldStreetAddressLine4.value;
+                        document.frmMaint.StreetAddressCode.value = document.frmMaint.oldStreetAddressCode.value;
+                        document.frmMaint.PostalAddressLine1.value = document.frmMaint.oldPostalAddressLine1.value;
+                        document.frmMaint.PostalAddressLine2.value = document.frmMaint.oldPostalAddressLine2.value;
+                        document.frmMaint.PostalAddressLine3.value = document.frmMaint.oldPostalAddressLine3.value;
+                        document.frmMaint.PostalAddressLine4.value = document.frmMaint.oldPostalAddressLine4.value;
+                        document.frmMaint.PostalAddressCode.value = document.frmMaint.oldPostalAddressCode.value;
+                        document.frmMaint.EmployerRegNo.value = document.frmMaint.oldEmployerRegNo.value;
+                        document.frmMaint.EmployerLogo.value = document.frmMaint.oldEmployerLogo.value;
+                        document.frmMaint.ContactPerson.value = document.frmMaint.oldContactPerson.value;
+                        document.frmMaint.Email.value = document.frmMaint.oldEmail.value;
+                        document.frmMaint.TelephoneNumber2.value = document.frmMaint.oldTelephoneNumber2.value;
+                        document.frmMaint.AdministrationRate.value = document.frmMaint.oldAdministrationRate.value;
+                        document.frmMaint.EmpDebitOrder.value = document.frmMaint.oldEmpDebitOrder.value;
+                        document.frmMaint.EmpNotes.value = document.frmMaint.oldEmpNotes.value;
+                        document.frmMaint.IsArrear.value = document.frmMaint.oldIsArrear.value;
+                        document.frmMaint.CollectedInArrear.value = document.frmMaint.oldCollectedInArrear.value;
+                        document.frmMaint.IsQuote.value = document.frmMaint.oldIsQuote.value;
+                        document.frmMaint.EmpJoinDateDay.value = document.frmMaint.oldEmpJoinDateDay.value;
+                        document.frmMaint.EmpJoinDateMonth.value = document.frmMaint.oldEmpJoinDateMonth.value;
+                        document.frmMaint.EmpJoinDateYear.value = document.frmMaint.oldEmpJoinDateYear.value;
+                        document.frmMaint.EmpLeftDateDay.value = document.frmMaint.oldEmpLeftDateDay.value;
+                        document.frmMaint.EmpLeftDateMonth.value = document.frmMaint.oldEmpLeftDateMonth.value;
+                        document.frmMaint.EmpLeftDateYear.value = document.frmMaint.oldEmpLeftDateYear.value;
+                        document.frmMaint.EmpCaptureDateDay.value = document.frmMaint.oldEmpCaptureDateDay.value;
+                        document.frmMaint.EmpCaptureDateMonth.value = document.frmMaint.oldEmpCaptureDateMonth.value;
+                        document.frmMaint.EmpCaptureDateYear.value = document.frmMaint.oldEmpCaptureDateYear.value;
+                        document.frmMaint.DescRADUserId.value = document.frmMaint.oldDescRADUserId.value;
+                        document.frmMaint.RADSysId.value = document.frmMaint.oldRADSysId.value;
+                        document.frmMaint.EmpCommonName.value = document.frmMaint.oldEmpCommonName.value;
+                        document.frmMaint.DescNatureOfBusinessId.value = document.frmMaint.oldDescNatureOfBusinessId.value;
+                        document.frmMaint.DescRADRegionId.value = document.frmMaint.oldDescRADRegionId.value;
+                        document.frmMaint.IsAutoCalculate.value = document.frmMaint.oldIsAutoCalculate.value;
+                        document.MemberUpload.DescGLPeriodId.value = document.MemberUpload.oldDescGLPeriodId.value
+                        document.frmMaint.DescAgentId.value = document.frmMaint.oldDescAgentId.value;
+                        document.frmMaint.DescAgentContactId.value = document.frmMaint.oldDescAgentContactId.value;
+
+                    }
+                }
+
+                function BuildURL() {
+                    var sURL;
+                    var currentTime = new Date();
+                    var sCheck = 'True';
+                    sURL = '';
+                    sURL = sURL + '&RADEmployerID=' + document.frmMaint.RADEmployerID.value;
+                    sURL = sURL + '&hidEmpName=' + document.frmMaint.hidEmpName.value;
+                    sURL = sURL + '&hidEmpRef=' + document.frmMaint.hidEmpRef.value;
+                    sURL = sURL + '&hidInsurerRefNo=' + document.frmMaint.hidInsurerRefNo.value;
+                    sURL = sURL + '&hidTelephoneNumber=' + document.frmMaint.hidTelephoneNumber.value;
+                    sURL = sURL + '&hidFaxNumber=' + document.frmMaint.hidFaxNumber.value;
+                    sURL = sURL + '&hidStreetAddressLine1=' + document.frmMaint.hidStreetAddressLine1.value;
+                    sURL = sURL + '&hidStreetAddressLine2=' + document.frmMaint.hidStreetAddressLine2.value;
+                    sURL = sURL + '&hidStreetAddressLine3=' + document.frmMaint.hidStreetAddressLine3.value;
+                    sURL = sURL + '&hidStreetAddressLine4=' + document.frmMaint.hidStreetAddressLine4.value;
+                    sURL = sURL + '&hidStreetAddressCode=' + document.frmMaint.hidStreetAddressCode.value;
+                    sURL = sURL + '&hidPostalAddressLine1=' + document.frmMaint.hidPostalAddressLine1.value;
+                    sURL = sURL + '&hidPostalAddressLine2=' + document.frmMaint.hidPostalAddressLine2.value;
+                    sURL = sURL + '&hidPostalAddressLine3=' + document.frmMaint.hidPostalAddressLine3.value;
+                    sURL = sURL + '&hidPostalAddressLine4=' + document.frmMaint.hidPostalAddressLine4.value;
+                    sURL = sURL + '&hidPostalAddressCode=' + document.frmMaint.hidPostalAddressCode.value;
+                    sURL = sURL + '&hidEmployerRegNo=' + document.frmMaint.hidEmployerRegNo.value;
+                    sURL = sURL + '&hidEmployerLogo=' + document.frmMaint.hidEmployerLogo.value;
+                    sURL = sURL + '&hidContactPerson=' + document.frmMaint.hidContactPerson.value;
+                    sURL = sURL + '&hidEmail=' + document.frmMaint.hidEmail.value;
+                    sURL = sURL + '&hidTelephoneNumber2=' + document.frmMaint.hidTelephoneNumber2.value;
+                    sURL = sURL + '&AdministrationRate=' + document.frmMaint.AdministrationRate.value;
+                    if (document.frmMaint.EmpDebitOrder.checked == true) {
+                        sCheck = 'True';
+                    } else {
+                        sCheck = 'False';
+                    }
+                    sURL = sURL + '&EmpDebitOrder=' + sCheck;
+                    sURL = sURL + '&hidEmpNotes=' + document.frmMaint.hidEmpNotes.value;
+                    if (document.frmMaint.IsArrear.checked == true) {
+                        sCheck = 'True';
+                    } else {
+                        sCheck = 'False';
+                    }
+                    sURL = sURL + '&IsArrear=' + sCheck;
+                    if (document.frmMaint.CollectedInArrear.checked == true) {
+                        sCheck = 'True';
+                    } else {
+                        sCheck = 'False';
+                    }
+                    sURL = sURL + '&CollectedInArrear=' + sCheck;
+                    if (document.frmMaint.IsQuote.checked == true) {
+                        sCheck = 'True';
+                    } else {
+                        sCheck = 'False';
+                    }
+                    sURL = sURL + '&IsQuote=' + sCheck;
+                    sURL = sURL + '&EmpJoinDateDay=' + document.frmMaint.EmpJoinDateDay.value;
+                    sURL = sURL + '&EmpJoinDateMonth=' + document.frmMaint.EmpJoinDateMonth.value;
+                    sURL = sURL + '&EmpJoinDateYear=' + document.frmMaint.EmpJoinDateYear.value;
+                    sURL = sURL + '&EmpLeftDateDay=' + document.frmMaint.EmpLeftDateDay.value;
+                    sURL = sURL + '&EmpLeftDateMonth=' + document.frmMaint.EmpLeftDateMonth.value;
+                    sURL = sURL + '&EmpLeftDateYear=' + document.frmMaint.EmpLeftDateYear.value;
+                    sURL = sURL + '&EmpCaptureDateDay=' + document.frmMaint.EmpCaptureDateDay.value;
+                    sURL = sURL + '&EmpCaptureDateMonth=' + document.frmMaint.EmpCaptureDateMonth.value;
+                    sURL = sURL + '&EmpCaptureDateYear=' + document.frmMaint.EmpCaptureDateYear.value;
+                    sURL = sURL + '&AdministratorId=' + document.frmMaint.AdministratorId.value;
+                    sURL = sURL + '&RADUserId=' + document.frmMaint.RADUserId.value;
+                    sURL = sURL + '&hidRADSysId=' + document.frmMaint.hidRADSysId.value;
+                    sURL = sURL + '&hidEmpCommonName=' + document.frmMaint.hidEmpCommonName.value;
+                    sURL = sURL + '&AgentId=' + document.frmMaint.AgentId.value;
+                    sURL = sURL + '&AgentContactId=' + document.frmMaint.AgentContactId.value;
+                    sURL = sURL + '&PageRequestTime=' + currentTime.getTime();
+                    sURL = sURL + '&NatureOfBusinessId=' + document.frmMaint.NatureOfBusinessId.value;
+                    sURL = sURL + '&RADRegionId=' + document.frmMaint.RADRegionId.value;
+                    if (document.frmMaint.IsAutoCalculate.checked == true) {
+                        sCheck = 'True';
+                    } else {
+                        sCheck = 'False';
+                    }
+                    sURL = sURL + '&IsAutoCalculate=' + sCheck;
+
+                    if (document.frmMaint.bIsJigsaw.checked == true) {
+                        sCheck = 'True';
+                    } else {
+                        sCheck = 'False';
+                    }
+                    sURL = sURL + '&bIsJigsaw=' + sCheck;
+
+
+                    return sURL;
+                }
+                function DisableField(bDisable) {
+                    BgBlur('EmpName');
+                    BgBlur('EmpRef');
+                    BgBlur('TelephoneNumber');
+                    BgBlur('FaxNumber');
+                    BgBlur('StreetAddressLine1');
+                    BgBlur('StreetAddressLine2');
+                    BgBlur('StreetAddressLine3');
+                    BgBlur('StreetAddressLine4');
+                    BgBlur('StreetAddressCode');
+                    BgBlur('PostalAddressLine1');
+                    BgBlur('PostalAddressLine2');
+                    BgBlur('PostalAddressLine3');
+                    BgBlur('PostalAddressLine4');
+                    BgBlur('PostalAddressCode');
+                    BgBlur('EmployerRegNo');
+                    BgBlur('EmployerLogo');
+                    BgBlur('ContactPerson');
+                    BgBlur('Email');
+                    BgBlur('TelephoneNumber2');
+                    BgBlur('AdministrationRate');
+                    BgBlur('EmpDebitOrder');
+                    BgBlur('EmpNotes');
+                    BgBlur('IsArrear');
+                    BgBlur('CollectedInArrear');
+                    BgBlur('IsQuote');
+                    BgBlur('EmpJoinDateDay');
+                    BgBlur('EmpJoinDateMonth');
+                    BgBlur('EmpJoinDateYear');
+                    BgBlur('EmpLeftDateDay');
+                    BgBlur('EmpLeftDateMonth');
+                    BgBlur('EmpLeftDateYear');
+                    BgBlur('EmpCaptureDateDay');
+                    BgBlur('EmpCaptureDateMonth');
+                    BgBlur('EmpCaptureDateYear');
+                    BgBlur('AdministratorId');
+                    BgBlur('RADUserId');
+                    BgBlur('RADSysId');
+                    BgBlur('EmpCommonName');
+                    BgBlur('NatureOfBusinessId');
+                    BgBlur('RADRegionId');
+                    BgBlur('bIsJigsaw');
+                    BgBlur('InsurerRefNo');
+                    BgBlur('IsAutoCalculate');
+                    BgBlur('AgentId');
+                    BgBlur('AgentContactId');
+
+                    document.frmMaint.EmpName.disabled = bDisable;
+                    document.frmMaint.EmpRef.disabled = bDisable;
+                    document.frmMaint.TelephoneNumber.disabled = bDisable;
+                    document.frmMaint.FaxNumber.disabled = bDisable;
+                    document.frmMaint.StreetAddressLine1.disabled = bDisable;
+                    document.frmMaint.StreetAddressLine2.disabled = bDisable;
+                    document.frmMaint.StreetAddressLine3.disabled = bDisable;
+                    document.frmMaint.StreetAddressLine4.disabled = bDisable;
+                    document.frmMaint.StreetAddressCode.disabled = bDisable;
+                    document.frmMaint.PostalAddressLine1.disabled = bDisable;
+                    document.frmMaint.PostalAddressLine2.disabled = bDisable;
+                    document.frmMaint.PostalAddressLine3.disabled = bDisable;
+                    document.frmMaint.PostalAddressLine4.disabled = bDisable;
+                    document.frmMaint.PostalAddressCode.disabled = bDisable;
+                    document.frmMaint.EmployerRegNo.disabled = bDisable;
+                    document.frmMaint.EmployerLogo.disabled = true;
+                    document.frmMaint.ContactPerson.disabled = bDisable;
+                    document.frmMaint.Email.disabled = bDisable;
+                    document.frmMaint.TelephoneNumber2.disabled = bDisable;
+                    document.frmMaint.AdministrationRate.disabled = bDisable;
+                    document.frmMaint.EmpDebitOrder.disabled = bDisable;
+                    document.frmMaint.EmpNotes.disabled = bDisable;
+                    document.frmMaint.IsArrear.disabled = bDisable;
+                    document.frmMaint.CollectedInArrear.disabled = bDisable;
+                    document.frmMaint.IsQuote.disabled = bDisable;
+                    document.frmMaint.EmpJoinDateDay.disabled = bDisable;
+                    document.frmMaint.EmpJoinDateMonth.disabled = bDisable;
+                    document.frmMaint.EmpJoinDateYear.disabled = bDisable;
+                    document.frmMaint.EmpLeftDateDay.disabled = bDisable;
+                    document.frmMaint.EmpLeftDateMonth.disabled = bDisable;
+                    document.frmMaint.EmpLeftDateYear.disabled = bDisable;
+                    document.frmMaint.EmpCaptureDateDay.disabled = bDisable;
+                    document.frmMaint.EmpCaptureDateMonth.disabled = bDisable;
+                    document.frmMaint.EmpCaptureDateYear.disabled = bDisable;
+                    document.frmMaint.AdministratorId.disabled = bDisable;
+                    document.frmMaint.RADUserId.disabled = bDisable;
+                    document.frmMaint.btnMCRADUserId.disabled = bDisable;
+                    document.frmMaint.btnMCRADUserIdClear.disabled = bDisable;
+                    document.frmMaint.RADSysId.disabled = bDisable;
+                    document.frmMaint.EmpCommonName.disabled = bDisable;
+                    document.frmMaint.NatureOfBusinessId.disabled = bDisable;
+                    document.frmMaint.btnMCNatureOfBusinessId.disabled = bDisable;
+                    document.frmMaint.btnMCNatureOfBusinessIdClear.disabled = bDisable;
+                    document.frmMaint.RADRegionId.disabled = bDisable;
+                    document.frmMaint.btnMCRADRegionId.disabled = bDisable;
+                    document.frmMaint.btnMCRADRegionIdClear.disabled = bDisable;
+                    document.frmMaint.IsAutoCalculate.disabled = bDisable;
+                    document.frmMaint.bIsJigsaw.disabled = bDisable;
+                    document.frmMaint.InsurerRefNo.disabled = bDisable;
+                    document.frmMaint.AgentId.disabled = bDisable;
+                    document.frmMaint.btnMCAgentId.disabled = bDisable;
+                    document.frmMaint.btnMCAgentIdClear.disabled = bDisable;
+                    document.frmMaint.AgentContactId.disabled = bDisable;
+                    document.frmMaint.btnMCAgentContactId.disabled = bDisable;
+                    document.frmMaint.btnMCAgentContactIdClear.disabled = bDisable;
+                    window.document.getElementById('DocumentNameUpload').disabled = bDisable;
+                    window.document.getElementById('uploadImage').disabled = bDisable;
+                }
+                function EncodeField(bEncode) {
+                    if (bEncode) {
+                        document.frmMaint.hidEmpName.value = encodeBase64(document.frmMaint.EmpName.value);
+                        document.frmMaint.hidInsurerRefNo.value = encodeBase64(document.frmMaint.InsurerRefNo.value);
+                        document.frmMaint.hidEmpRef.value = encodeBase64(document.frmMaint.EmpRef.value);
+                        document.frmMaint.hidTelephoneNumber.value = encodeBase64(document.frmMaint.TelephoneNumber.value);
+                        document.frmMaint.hidFaxNumber.value = encodeBase64(document.frmMaint.FaxNumber.value);
+                        document.frmMaint.hidStreetAddressLine1.value = encodeBase64(document.frmMaint.StreetAddressLine1.value);
+                        document.frmMaint.hidStreetAddressLine2.value = encodeBase64(document.frmMaint.StreetAddressLine2.value);
+                        document.frmMaint.hidStreetAddressLine3.value = encodeBase64(document.frmMaint.StreetAddressLine3.value);
+                        document.frmMaint.hidStreetAddressLine4.value = encodeBase64(document.frmMaint.StreetAddressLine4.value);
+                        document.frmMaint.hidStreetAddressCode.value = encodeBase64(document.frmMaint.StreetAddressCode.value);
+                        document.frmMaint.hidPostalAddressLine1.value = encodeBase64(document.frmMaint.PostalAddressLine1.value);
+                        document.frmMaint.hidPostalAddressLine2.value = encodeBase64(document.frmMaint.PostalAddressLine2.value);
+                        document.frmMaint.hidPostalAddressLine3.value = encodeBase64(document.frmMaint.PostalAddressLine3.value);
+                        document.frmMaint.hidPostalAddressLine4.value = encodeBase64(document.frmMaint.PostalAddressLine4.value);
+                        document.frmMaint.hidPostalAddressCode.value = encodeBase64(document.frmMaint.PostalAddressCode.value);
+                        document.frmMaint.hidEmployerRegNo.value = encodeBase64(document.frmMaint.EmployerRegNo.value);
+                        document.frmMaint.hidEmployerLogo.value = encodeBase64(document.frmMaint.EmployerLogo.value);
+                        document.frmMaint.hidContactPerson.value = encodeBase64(document.frmMaint.ContactPerson.value);
+                        document.frmMaint.hidEmail.value = encodeBase64(document.frmMaint.Email.value);
+                        document.frmMaint.hidTelephoneNumber2.value = encodeBase64(document.frmMaint.TelephoneNumber2.value);
+                        document.frmMaint.hidEmpNotes.value = encodeBase64(document.frmMaint.EmpNotes.value);
+                        document.frmMaint.hidRADSysId.value = encodeBase64(document.frmMaint.RADSysId.value);
+                        document.frmMaint.hidEmpCommonName.value = encodeBase64(document.frmMaint.EmpCommonName.value);
+                    }
+                    else {
+                        document.frmMaint.EmpName.value = decode64(document.frmMaint.hidEmpName.value);
+                        document.frmMaint.InsurerRefNo.value = decode64(document.frmMaint.hidInsurerRefNo.value);
+                        document.frmMaint.EmpRef.value = decode64(document.frmMaint.hidEmpRef.value);
+                        document.frmMaint.TelephoneNumber.value = decode64(document.frmMaint.hidTelephoneNumber.value);
+                        document.frmMaint.FaxNumber.value = decode64(document.frmMaint.hidFaxNumber.value);
+                        document.frmMaint.StreetAddressLine1.value = decode64(document.frmMaint.hidStreetAddressLine1.value);
+                        document.frmMaint.StreetAddressLine2.value = decode64(document.frmMaint.hidStreetAddressLine2.value);
+                        document.frmMaint.StreetAddressLine3.value = decode64(document.frmMaint.hidStreetAddressLine3.value);
+                        document.frmMaint.StreetAddressLine4.value = decode64(document.frmMaint.hidStreetAddressLine4.value);
+                        document.frmMaint.StreetAddressCode.value = decode64(document.frmMaint.hidStreetAddressCode.value);
+                        document.frmMaint.PostalAddressLine1.value = decode64(document.frmMaint.hidPostalAddressLine1.value);
+                        document.frmMaint.PostalAddressLine2.value = decode64(document.frmMaint.hidPostalAddressLine2.value);
+                        document.frmMaint.PostalAddressLine3.value = decode64(document.frmMaint.hidPostalAddressLine3.value);
+                        document.frmMaint.PostalAddressLine4.value = decode64(document.frmMaint.hidPostalAddressLine4.value);
+                        document.frmMaint.PostalAddressCode.value = decode64(document.frmMaint.hidPostalAddressCode.value);
+                        document.frmMaint.EmployerRegNo.value = decode64(document.frmMaint.hidEmployerRegNo.value);
+                        document.frmMaint.EmployerLogo.value = decode64(document.frmMaint.hidEmployerLogo.value);
+                        document.frmMaint.ContactPerson.value = decode64(document.frmMaint.hidContactPerson.value);
+                        document.frmMaint.Email.value = decode64(document.frmMaint.hidEmail.value);
+                        document.frmMaint.TelephoneNumber2.value = decode64(document.frmMaint.hidTelephoneNumber2.value);
+                        document.frmMaint.EmpNotes.value = decode64(document.frmMaint.hidEmpNotes.value);
+                        document.frmMaint.RADSysId.value = decode64(document.frmMaint.hidRADSysId.value);
+                        document.frmMaint.EmpCommonName.value = decode64(document.frmMaint.hidEmpCommonName.value);
+                    }
+                }
+                function SetTooltip(fieldname) {
+                    var sTooltip;
+                    sTooltip = '';
+                    if (fieldname == 'EmpName') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmpName>';
+                    }
+                    if (fieldname == 'EmpRef') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmpRef>';
+                    }
+                    if (fieldname == 'TelephoneNumber') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerTelephoneNumber>';
+                    }
+                    if (fieldname == 'FaxNumber') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerFaxNumber>';
+                    }
+                    if (fieldname == 'StreetAddressLine1') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerStreetAddressLine1>';
+                    }
+                    if (fieldname == 'StreetAddressLine2') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerStreetAddressLine2>';
+                    }
+                    if (fieldname == 'StreetAddressLine3') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerStreetAddressLine3>';
+                    }
+                    if (fieldname == 'StreetAddressLine4') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerStreetAddressLine4>';
+                    }
+                    if (fieldname == 'StreetAddressCode') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerStreetAddressCode>';
+                    }
+                    if (fieldname == 'PostalAddressLine1') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerPostalAddressLine1>';
+                    }
+                    if (fieldname == 'PostalAddressLine2') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerPostalAddressLine2>';
+                    }
+                    if (fieldname == 'PostalAddressLine3') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerPostalAddressLine3>';
+                    }
+                    if (fieldname == 'PostalAddressLine4') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerPostalAddressLine4>';
+                    }
+                    if (fieldname == 'PostalAddressCode') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerPostalAddressCode>';
+                    }
+                    if (fieldname == 'EmployerRegNo') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmployerRegNo>';
+                    }
+                    if (fieldname == 'EmployerLogo') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmployerLogo>';
+                    }
+                    if (fieldname == 'ContactPerson') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerContactPerson>';
+                    }
+                    if (fieldname == 'Email') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmail>';
+                    }
+                    if (fieldname == 'TelephoneNumber2') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerTelephoneNumber2>';
+                    }
+                    if (fieldname == 'AdministrationRate') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerAdministrationRate>';
+                    }
+                    if (fieldname == 'EmpDebitOrder') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmpDebitOrder>';
+                    }
+                    if (fieldname == 'EmpNotes') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmpNotes>';
+                    }
+                    if (fieldname == 'IsArrear') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerIsArrear>';
+                    }
+                    if (fieldname == 'CollectedInArrear') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerCollectedInArrear>';
+                    }
+                    if (fieldname == 'IsQuote') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerIsQuote>';
+                    }
+                    if (fieldname == 'EmpJoinDateDay' || fieldname == 'EmpJoinDateMonth' || fieldname == 'EmpJoinDateYear') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmpJoinDate>';
+                    }
+                    if (fieldname == 'EmpLeftDateDay' || fieldname == 'EmpLeftDateMonth' || fieldname == 'EmpLeftDateYear') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmpLeftDate>';
+                    }
+                    if (fieldname == 'EmpCaptureDateDay' || fieldname == 'EmpCaptureDateMonth' || fieldname == 'EmpCaptureDateYear') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmpCaptureDate>';
+                    }
+                    if (fieldname == 'AdministratorId') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerAdministratorId>';
+                    }
+                    if (fieldname == 'RADUserId') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerRADUserId>';
+                    }
+                    if (fieldname == 'RADSysId') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerRADSysId>';
+                    }
+                    if (fieldname == 'EmpCommonName') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerEmpCommonName>';
+                    }
+                    if (fieldname == 'NatureOfBusinessId') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerNatureOfBusinessId>';
+                    }
+                    if (fieldname == 'RADRegionId') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerRADRegionId>';
+                    }
+                    if (fieldname == 'IsAutoCalculate') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerIsAutoCalculate>';
+                    }
+                    if (fieldname == 'AgentId') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerAgentId>';
+                    }
+                    if (fieldname == 'AgentContactId') {
+                        sTooltip = '<Phrase:Tooltip:IMntRADEmployerAgentContactId>';
+                    }
+                    document.all.item("divTooltip").innerHTML = '<IMG SRC="Images/help_sml.png" align="absmiddle" border="0" alt="">' + sTooltip;
+                    document.all.item("divTooltip").style.visibility = "hidden";//change to visible to view tooltips
+                }
+                function BgFocus(fieldname) {
+                    if (document.all) {
+                        document.all.item(fieldname).style.background = "#C2D500"
+                        document.all.item(fieldname).style.color = '<Theme:TextFocusForeColor>'
+                        SetTooltip(fieldname);
+                        document.all.item(fieldname).select();
+                    }
+                }
+                function BgBlur(fieldname) {
+                    if (document.all) {
+                        document.all.item(fieldname).style.background = '<Theme:TextNormalColor>'
+                        document.all.item(fieldname).style.color = '<Theme:TextNormalForeColor>'
+                        document.all.item("divTooltip").style.visibility = "hidden";
+                    }
+                }
+                function EnterEventSubmit() {
+                    if (window.event && window.event.keyCode == 13) {
+                        ScreenSave();
+                        return false;
+                    }
+                }
+                function CheckFields() {
+                    var bCheckFieldsPassed = true;
+                    var oControl;
+
+                    if (document.frmMaint.EmpName.value == "") {
+                        ;
+                        document.frmMaint.EmpName.focus();
+                        alert("Please specify the Client name.")
+                        return false;
+                    }
+                    if ((CheckNumeric(document.frmMaint.AdministrationRate, "Double") == false) && (bCheckFieldsPassed == true)) {
+                        oControl = document.frmMaint.AdministrationRate;
+                        bCheckFieldsPassed = false;
+                    }
+                    if ((CheckDate(document.frmMaint.EmpJoinDateDay, document.frmMaint.EmpJoinDateMonth, document.frmMaint.EmpJoinDateYear) == false) && (bCheckFieldsPassed == true)) {
+                        oControl = document.frmMaint.EmpJoinDateDay;
+                        bCheckFieldsPassed = false;
+                    }
+                    if ((CheckDate(document.frmMaint.EmpLeftDateDay, document.frmMaint.EmpLeftDateMonth, document.frmMaint.EmpLeftDateYear) == false) && (bCheckFieldsPassed == true)) {
+                        oControl = document.frmMaint.EmpLeftDateDay;
+                        bCheckFieldsPassed = false;
+                    }
+                    if ((CheckDate(document.frmMaint.EmpCaptureDateDay, document.frmMaint.EmpCaptureDateMonth, document.frmMaint.EmpCaptureDateYear) == false) && (bCheckFieldsPassed == true)) {
+                        oControl = document.frmMaint.EmpCaptureDateDay;
+                        bCheckFieldsPassed = false;
+                    }
+                    if ((document.frmMaint.DescRADUserId.value == "") && (bCheckFieldsPassed == true)) {
+                        ;
+                        oControl = document.frmMaint.btnMCRADUserId;
+                        alert("Please select a User to administer the Client.")
+                        bCheckFieldsPassed = false;
+                    }
+                    if ((document.frmMaint.EmpJoinDateDay.value == "dd" || document.frmMaint.EmpJoinDateDay.value == "") && (bCheckFieldsPassed == true)) {
+                        ;
+                        oControl = document.frmMaint.EmpJoinDateDay;
+                        alert("Please specify a valid commencement date.")
+                        bCheckFieldsPassed = false;
+                    }
+                    if ((document.frmMaint.EmpJoinDateMonth.value == "mm" || document.frmMaint.EmpJoinDateMonth.value == "") && (bCheckFieldsPassed == true)) {
+                        ;
+                        oControl = document.frmMaint.EmpJoinDateMonth;
+                        alert("Please specify a valid commencement date.")
+                        bCheckFieldsPassed = false;
+                    }
+                    if ((document.frmMaint.EmpJoinDateYear.value == "yyyy" || document.frmMaint.EmpJoinDateYear.value == "") && (bCheckFieldsPassed == true)) {
+                        ;
+                        oControl = document.frmMaint.EmpJoinDateYear;
+                        alert("Please specify a valid commencement date.")
+                        bCheckFieldsPassed = false;
+                    }
+                    if (document.frmMaint.DescAgentId.value == "") {
+                        ;
+                        oControl = document.frmMaint.btnMCAgentId;
+                        alert("Please specify an Agent.")
+                        bCheckFieldsPassed = false;
+                    }
+                    if (bCheckFieldsPassed == false) {
+                        tabOnClick(1);
+                        oControl.focus();
+                    }
+                    return bCheckFieldsPassed;
+                }
+                function CheckMember() {
+
+                    document.all.item("LogLink").style.visibility = "hidden"
+                    document.all.item("LogLink").innerHTML = ""
+                    document.all.item("btnLock").disabled = false;
+                    document.all.item("btnUnlock").disabled = true;
+                    document.all.item("sLock").style.visibility = "hidden";
+                    if (parseInt(document.MemberUpload.GLPeriodId.value) > parseInt(document.all.SysPeriod.value)) {
+                        ;
+                        document.all.btnRecalc.disabled = true;
+                        document.all.btnRecalcEff.disabled = false;
+                        if (document.frmMaint.IsLocked.value == "Y") {
+                            if (parseInt(document.frmMaint.LockPeriod.value) >= parseInt(document.MemberUpload.GLPeriodId.value)) {
+                                ;
+                                document.all.item("btnLock").disabled = true;
+                                document.all.item("btnUnlock").disabled = false;
+                                document.all.item("sLock").style.visibility = "visible";
+                            }
+                        } else {
+                            if (parseInt(document.frmMaint.LockPeriod.value) >= parseInt(document.MemberUpload.GLPeriodId.value)) {
+                                ;
+                                document.all.item("btnLock").disabled = true;
+                                document.all.item("btnUnlock").disabled = false;
+                                document.all.item("sLock").style.visibility = "visible";
+                            }
+                        }
+                    } else {
+                        document.all.btnRecalc.disabled = false;
+                        document.all.btnRecalcEff.disabled = true;
+                        if (document.frmMaint.IsLocked.value == "Y") {
+                            document.all.item("btnLock").disabled = true;
+                            document.all.item("btnUnlock").disabled = false;
+                            document.all.item("sLock").style.visibility = "visible";
+                        }
+
+                        else {
+                            if (parseInt(document.frmMaint.LockPeriod.value) >= parseInt(document.MemberUpload.GLPeriodId.value)) {
+                                ;
+                                document.all.item("btnLock").disabled = true;
+                                document.all.item("btnUnlock").disabled = false;
+                                document.all.item("sLock").style.visibility = "visible";
+                            }
+                        }
+
+                    }
+                    bMemberBrw = false;
+                    tabOnClick(9);
+                }
+                //Functions for MultiCombo: START
+                function OpenMultiCombo(sWinName, sFormName, sFieldname) {
+                    //  InitializeTimer();
+                    var winURL = 'IMultiCombo.aspx?Action=MOVEFIRST&FormName=' + sFormName + '&FieldName=' + sFieldname;
+                    if (sFieldname == 'GLPeriodId') {
+                        // bChangePeriod = true;
+
+                        var winURL = 'IMultiComboExtra.aspx?Action=MOVEFIRST&FormName=' + sFormName + '&FieldName=' + sFieldname + '&FunctionName=CheckMember()&ScreenName=IMntRADEmployer';
+
+                    }
+                    if (sFieldname == 'AgentContactId') {
+                        // bChangePeriod = true;
+
+                        var winURL = 'IMultiCombo.aspx?Action=MOVEFIRST&FormName=' + sFormName + '&FieldName=' + sFieldname + '&CargoId=' + document.all.item("AgentId").value;
+
+                    }
+
+                    newWindow = window.open(winURL, sWinName, 'resizable=yes, toolbar=no,scrollbars=yes,top=150, left=200,width=600,height=330');
+                }
+                function ClearMultoCombo(IDField, DescField) {
+                    IDField.value = "0";
+                    DescField.disabled = false;
+                    DescField.value = "";
+                    DescField.disabled = true;
+                }
+                //Functions for MultiCombo: END
+
+                //  End -->
+                function CheckImageField() {
+                    if (document.all.item("DocumentNameUpload").value == "") {
+                        alert('Please select a Logo for the Client.');
+                        document.ImageUpload.DocumentNameUpload.focus();
+                        return false
+                    }
+                    document.all.item("divLoadingIndicator").innerHTML = '
+					<img src="Images/waiting.gif" border="0" alt="" >';
+                    var sURL = "IUploadFile.aspx?RADEmployerID=" + document.frmMaint.RADEmployerID.value + "&type=employer&uploadType=logo";
+                    document.ImageUpload.action = sURL;
+                    document.ImageUpload.submit();
+                }
+                function DisableImport(bDisable) {
+                    document.all.item("uploadMember").disabled = bDisable;
+
+                }
+                function CheckMemberField(bUpload) {
+                    var nlComparePeriod;
+                    var bAllow = false;
+                    if (document.all.item("MemberDocumentUpload").value == "") {
+                        alert('Please select a file to upload.');
+                        document.MemberUpload.MemberDocumentUpload.focus();
+                        return false
+                    }
+                    if (document.MemberUpload.DescGLPeriodId.value == "") {
+                        ;
+                        document.MemberUpload.GLPeriodId.focus();
+                        alert("Please specify the effective period.")
+                        return false;
+                    }
+                    if (document.all.IsLocked.value == 'Y') {
+                        ;
+                        if (parseInt(document.MemberUpload.GLPeriodId.value) <= parseInt(document.all.LockPeriod.value)) {
+                            ;
+                            alert("This Employer has been LOCKED for the System Period and cannot be modified")
+                            return false;
+                        }
+                    }
+                    nlComparePeriod = parseInt(document.MemberUpload.oldGLPeriodId.value)
+
+                    if (parseInt(document.MemberUpload.AllowPeriodId.value) > 0) {
+                        //alert('allow')
+                        nlComparePeriod = parseInt(document.MemberUpload.AllowPeriodId.value)
+                        bAllow = true;
+                    }
+
+                    if (parseInt(document.MemberUpload.GLPeriodId.value) < parseInt(nlComparePeriod)) {
+                        ;
+                        document.MemberUpload.GLPeriodId.focus();
+                        alert("Please ensure that the effective period for the upload is valid.\r\nThe selected period is before the current period.")
+                        return false;
+                    }
+                    if (!bAllow) {
+                        if (parseInt(document.MemberUpload.GLPeriodId.value) < parseInt(document.all.SysPeriod.value)) {
+                            ;
+                            document.MemberUpload.GLPeriodId.focus();
+                            alert("Please ensure that the effective period for the upload is valid.\r\nThe selected period is before the System period.")
+                            return false;
+                        }
+                    }
+                    if (!bUpload) {
+                        if (document.MemberUpload.GLPeriodId.value >= document.MemberUpload.oldGLPeriodId.value) {
+                            ;
+                            var answer = confirm(document.MemberUpload.GLPeriodId.options[document.MemberUpload.GLPeriodId.selectedIndex].text.toUpperCase() + " is the selected month.\r\nAre you sure you wish to Import the member data for this period?.\r\nIf this is not the correct month, please click the CANCEL button");
+                            if (answer) {
+                                //continue
+                            }
+                            else {
+                                return false;
+                            }
+                        }
+                    }
+                    bChangePeriod = true;
+                    bShowError = true;
+                    var sType = '';
+                    if (bUpload) {
+                        sType = 'memberdata'
+                    } else {
+                        sType = 'memberdatavalidate'
+                    }
+                    StopTheClock()
+                    document.all.item("divLoadingIndicator").innerHTML = '
+						<img src="Images/waiting.gif" border="0" alt="" >';
+                    var sURL = "IUploadFile.aspx?RADEmployerID=" + document.frmMaint.RADEmployerID.value + "&GLPeriodId=" + document.MemberUpload.GLPeriodId.value + "&type=employer&uploadType=" + sType + "&fName=" + document.MemberUpload.MemberDocumentUpload.value;
+                    //alert(sURL)
+                    document.MemberUpload.action = sURL;
+                    document.all.item("uploadMember").disabled = true;
+                    document.MemberUpload.submit();
+                }
+                function ImportMembers() {
+                    var nlComparePeriod;
+                    var bAllow = false;
+                    if (document.MemberUpload.DescGLPeriodId.value == "") {
+                        ;
+                        document.MemberUpload.GLPeriodId.focus();
+                        alert("Please specify the effective period.")
+                        return false;
+                    }
+                    if (document.all.IsLocked.value == 'Y') {
+                        ;
+                        if (parseInt(document.MemberUpload.GLPeriodId.value) <= parseInt(document.all.LockPeriod.value)) {
+                            ;
+                            alert("This Employer has been LOCKED for the System Period and cannot be modified")
+                            return false;
+                        }
+                    }
+                    nlComparePeriod = parseInt(document.MemberUpload.oldGLPeriodId.value)
+                    if (parseInt(document.MemberUpload.AllowPeriodId.value) > 0) {
+                        //alert('allow')
+                        nlComparePeriod = parseInt(document.MemberUpload.AllowPeriodId.value)
+                        bAllow = true;
+                    }
+
+                    if (parseInt(document.MemberUpload.GLPeriodId.value) < parseInt(nlComparePeriod)) {
+                        ;
+                        document.MemberUpload.GLPeriodId.focus();
+                        alert("Please ensure that the effective period for the upload is valid.\r\nThe selected period is before the current period.")
+                        return false;
+                    }
+                    if (!bAllow) {
+                        if (parseInt(document.MemberUpload.GLPeriodId.value) < parseInt(document.all.SysPeriod.value)) {
+                            ;
+                            document.MemberUpload.GLPeriodId.focus();
+                            alert("Please ensure that the effective period for the upload is valid.\r\nThe selected period is before the System period.")
+                            return false;
+                        }
+                    }
+                    //     if(parseInt(document.MemberUpload.GLPeriodId.value) < parseInt(document.MemberUpload.oldGLPeriodId.value)){;
+                    //      document.MemberUpload.GLPeriodId.focus();
+                    //      alert("Please ensure that the effective period for the upload is valid.\r\nThe selected period is before the current period.")
+                    //      return false;
+                    //
+                    //    }
+                    //    if(parseInt(document.MemberUpload.GLPeriodId.value) < parseInt(document.all.SysPeriod.value)){;
+                    //      document.MemberUpload.GLPeriodId.focus();
+                    //      alert("Please ensure that the effective period for the upload is valid.\r\nThe selected period is before the System period.")
+                    //      return false;
+                    //
+                    //    }
+                    var answer = confirm(document.MemberUpload.GLPeriodId.options[document.MemberUpload.GLPeriodId.selectedIndex].text.toUpperCase() + " is the selected month.\r\nAre you sure you wish to Import the member data for this period?.\r\nIf this is not the correct month, please click the CANCEL button");
+                    if (answer) {
+                        //continue
+                    }
+                    else {
+                        return false;
+                    }
+                    bChangePeriod = true;
+                    bShowError = true;
+                    //var currentTime = new Date();
+                    StopTheClock()
+                    DisableToolBar(false, false, false, false, false, false, false, false, false, false, true, 'IMntRADEmployer')
+                    document.all.item("divLoadingIndicator").innerHTML = '
+							<img src="Images/waiting.gif" border="0" alt="" >';
+                    //loadXMLDoc('IMntRADEmployer.aspx?ACTION=ImportMembers&RADEmployerID=' + document.frmMaint.RADEmployerID.value+'&GLPeriodId=' + document.MemberUpload.GLPeriodId.value+'&PageRequestTime=' + currentTime.getTime());
+                    var sURL = "IMntRADEmployer.aspx?ACTION=ImportMembers&RADEmployerID=" + document.frmMaint.RADEmployerID.value + "&GLPeriodId=" + document.MemberUpload.GLPeriodId.value;
+                    //alert(sURL)
+                    document.MemberUpload.action = sURL;
+                    document.MemberUpload.submit();
+                    //InitializeTimer();
+                }
+                function BrowseCheck() {
+                    document.all.item("LogLink").style.visibility = "hidden"
+                    document.all.item("LogLink").innerHTML = ""
+                    document.all.item("uploadMember").disabled = true;
+
+                }
+                function ExportMemberField() {
+                    if (document.MemberUpload.DescGLPeriodId.value == "") {
+                        ;
+                        document.MemberUpload.GLPeriodId.focus();
+                        alert("Please specify the export period.")
+                        return false;
+                    }
+                    if (document.MemberUpload.GLPeriodId.value < document.MemberUpload.oldGLPeriodId.value) {
+
+                        var answer = confirm("The Effective Period has changed. Do you wish to Export the member data for " + document.MemberUpload.DescGLPeriodId.value + "?");
+                        if (answer) {
+                            //continue
+                        }
+                        else {
+                            //fdul
+                            return false;
+                        }
+                    }
+                    bShowError = true;
+                    for (i = 0; i < document.all.rdProduct.length; i++) {
+                        if (document.all.rdProduct[i].checked) {
+                            rad_val = document.all.rdProduct[i].value;
+                        }
+                    }
+                    //MySubMode = MyMode
+                    // MyMode = 'EXPORT'
+                    // document.all.item("divLoadingIndicator").innerHTML = '
+								<img src="Images/waiting.gif" border="0" alt="" >';
+                    var sURL = "IMntRADEmployer.aspx?ACTION=ExportMembers&RADEmployerID=" + document.frmMaint.RADEmployerID.value + "&GLPeriodId=" + document.MemberUpload.GLPeriodId.value;
+                    //alert(sURL)
+                    loadXMLDoc(sURL);
+                    document.frmMaint.ProductType.value = rad_val;
+                    document.frmMaint.GLPeriod.value = document.MemberUpload.GLPeriodId.value;
+                    // alert(document.frmMaint.GLPeriod.value)
+                    document.frmMaint.Action.value = 'ExportMembers';
+                    document.frmMaint.submit();
+                }
+                function ViewCategoryInfo() {
+                    for (i = 0; i < document.all.rdProduct.length; i++) {
+                        if (document.all.rdProduct[i].checked) {
+                            rad_val = document.all.rdProduct[i].value;
+                        }
+                    }
+                    var winURL = "IBrwCnEmployerRateCategory.aspx?GLPeriodId=" + document.MemberUpload.GLPeriodId.value + "&RadEmployerId=" + document.frmMaint.RADEmployerID.value + "&RADProduct=" + rad_val;
+                    newWindow = window.open(winURL, 'Win2', 'resizable=no, toolbar=no,scrollbars=yes,top=150, left=200,width=650,height=450');
+
+                }
+                function CustomiseBrw() {
+                    // InitializeTimer();
+                    for (i = 0; i < document.all.rdProduct.length; i++) {
+                        if (document.all.rdProduct[i].checked) {
+                            rad_val = document.all.rdProduct[i].value;
+                        }
+                    }
+                    var winURL = 'IBrwCustom.aspx?Action=viewmode&RADEmployerID=' + document.frmMaint.RADEmployerID.value + '&ProductType=' + rad_val;
+                    newWindow = window.open(winURL, 'Win2', 'resizable=no, toolbar=no,scrollbars=yes,top=150, left=200,width=600,height=450');
+                }
+                function RefreshBrw(sChklist) {
+                    // alert(sChklist)
+                    var currentTime = new Date();
+                    MySubMode = MyMode;
+                    MyMode = 'MEMBERBRWOTHER';
+                    DisableBrowseRADMember_Emp();
+                    bInMemberEditMode = false;
+                    for (i = 0; i < document.all.rdProduct.length; i++) {
+                        if (document.all.rdProduct[i].checked) {
+                            rad_val = document.all.rdProduct[i].value;
+                        }
+                    }
+                    var sAnnot = document.frmRADMember_EmpFind.chkAnnotated.checked;
+                    document.all.item("divLoadingIndicator").innerHTML = '
+									<img src="Images/waiting.gif" border="0" alt="" >';
+                    loadXMLDoc('IBrwCnRADMember_Emp.aspx?ACTION=SHOWFIRST&FromScreen=Emp&RADEmployerID=' + document.frmMaint.RADEmployerID.value + '&ProductType=' + rad_val + '&GLPeriodId=' + document.MemberUpload.GLPeriodId.value + '&chklist=' + sChklist + '&FindMemberSurname=' + document.frmRADMember_EmpFind.FindMemberSurname.value + '&FindMbAnnot=' + sAnnot + '&PageRequestTime=' + currentTime.getTime());
+                    //InitializeTimer();
+                }
+                function RefreshProduct(sProd) {
+                    // alert(sProd)
+                    var currentTime = new Date();
+                    var sAnnot = document.frmRADMember_EmpFind.chkAnnotated.checked;
+
+                    bInMemberEditMode = false;
+                    MySubMode = MyMode;
+                    MyMode = 'MEMBERBRWOTHER';
+                    DisableBrowseRADMember_Emp();
+                    document.all.item("divLoadingIndicator").innerHTML = '
+										<img src="Images/waiting.gif" border="0" alt="" >';
+                    loadXMLDoc('IBrwCnRADMember_Emp.aspx?ACTION=SHOWFIRST&FromScreen=Emp&ProductType=' + sProd + '&RADEmployerID=' + document.frmMaint.RADEmployerID.value + '&GLPeriodId=' + document.MemberUpload.GLPeriodId.value + '&FindMemberSurname=' + document.frmRADMember_EmpFind.FindMemberSurname.value + '&FindMbAnnot=' + sAnnot + '&PageRequestTime=' + currentTime.getTime());
+                    // InitializeTimer();
+                }
+                function RecalcEmp() {
+                    // alert(sProd)
+                    var currentTime = new Date();
+                    // bInMemberEditMode = false;
+                    //  DisableBrowseRADMember_Emp();
+                    //loadXMLDoc('IMntRADEmployer.aspx?ACTION=RECALCEMP&FromScreen=Emp&RADEmployerID=' + document.frmMaint.RADEmployerID.value + '&PageRequestTime=' + currentTime.getTime());
+                    // InitializeTimer();
+                    if (document.all.IsLocked.value == 'Y') {
+                        ;
+                        alert("This Employer has been LOCKED for the System Period and cannot be modified")
+                        return false;
+                    }
+                    var answer = confirm("This will recalculate the Employer for the current System Period. Do you wish to continue?");
+                    if (answer) {
+                        //continue
+                    }
+                    else {
+                        return false;
+                    }
+                    // document.frmMaint.ProductType.value = rad_val;
+                    // document.frmMaint.GLPeriod.value = document.MemberUpload.GLPeriodId.value;
+                    // alert(document.frmMaint.GLPeriod.value)
+                    document.all.item("divLoadingIndicator").innerHTML = '
+											<img src="Images/waiting.gif" border="0" alt="" >';
+                    document.frmMaint.Action.value = 'RECALCEMP';
+                    document.frmMaint.submit();
+                }
+                function LockEmp(bLock) {
+                    var currentTime = new Date();
+                    var sLock;
+                    var sAction;
+                    if (bLock) {
+                        sLock = 'Lock'
+                        sAction = 'LOCKEMP'
+                    } else {
+                        sLock = 'Unlock'
+                        sAction = 'UNLOCKEMP'
+                    }
+                    var answer = confirm("This will " + sLock + " the Employer for the current System Period. Do you wish to continue?");
+                    if (answer) {
+                        //continue
+                    }
+                    else {
+                        return false;
+                    }
+                    document.all.item("divLoadingIndicator").innerHTML = '
+												<img src="Images/waiting.gif" border="0" alt="" >';
+                    document.frmMaint.Action.value = sAction;
+                    document.frmMaint.GLPeriod.value = document.MemberUpload.GLPeriodId.value;
+                    document.frmMaint.submit();
+                }
+                function ClearMember() {
+                    var currentTime = new Date();
+                    var answer = confirm("This will delete all New Member data fot this Employer for the current System Period. Do you wish to continue?");
+                    if (answer) {
+                        //continue
+                    }
+                    else {
+                        return false;
+                    }
+                    document.all.item("divLoadingIndicator").innerHTML = '
+													<img src="Images/waiting.gif" border="0" alt="" >';
+                    document.frmMaint.Action.value = 'CLEARMEMBER';
+                    document.frmMaint.GLPeriod.value = document.MemberUpload.GLPeriodId.value;
+                    document.frmMaint.submit();
+
+                }
+                function RecalcEmpEff() {
+                    var currentTime = new Date();
+                    if (document.MemberUpload.DescGLPeriodId.value == "") {
+                        ;
+                        document.MemberUpload.GLPeriodId.focus();
+                        alert("Please specify the effective period.")
+                        return false;
+                    }
+                    if (document.all.IsLocked.value == 'Y') {
+                        ;
+
+                        if (parseInt(document.MemberUpload.GLPeriodId.value) <= parseInt(document.all.LockPeriod.value)) {
+                            ;
+                            alert("This Employer has been LOCKED for the Selected Period and cannot be modified")
+                            return false;
+                        }
+                    }
+                    if (parseInt(document.MemberUpload.GLPeriodId.value) < parseInt(document.MemberUpload.oldGLPeriodId.value)) {
+                        ;
+                        document.MemberUpload.GLPeriodId.focus();
+                        alert("Please ensure that the effective period for the upload is valid.\r\nThe selected period is before the current period.")
+                        return false;
+
+                    }
+                    if (parseInt(document.MemberUpload.GLPeriodId.value) < parseInt(document.all.SysPeriod.value)) {
+                        ;
+                        document.MemberUpload.GLPeriodId.focus();
+                        alert("Please ensure that the effective period for the upload is valid.\r\nThe selected period is before the System period.")
+                        return false;
+
+                    }
+                    var answer = confirm("This will recalculate the Employer for the Selected Effective Period. Do you wish to continue?");
+                    if (answer) {
+                        //continue
+                    }
+                    else {
+                        return false;
+                    }
+                    document.all.item("divLoadingIndicator").innerHTML = '
+														<img src="Images/waiting.gif" border="0" alt="" >';
+                    document.frmMaint.Action.value = 'RECALCEMPEFF';
+                    document.frmMaint.GLPeriod.value = document.MemberUpload.GLPeriodId.value;
+                    document.frmMaint.submit();
+                }
+                function ClearMember() {
+                    var currentTime = new Date();
+                    var answer = confirm("This will delete all New Member data fot this Employer for the current System Period. Do you wish to continue?");
+                    if (answer) {
+                        //continue
+                    }
+                    else {
+                        return false;
+                    }
+                    document.all.item("divLoadingIndicator").innerHTML = '
+															<img src="Images/waiting.gif" border="0" alt="" >';
+                    document.frmMaint.Action.value = 'CLEARMEMBER';
+                    document.frmMaint.GLPeriod.value = document.MemberUpload.GLPeriodId.value;
+                    document.frmMaint.submit();
+
+                }
+                function BrowseRevertMember(sRowId) {
+                    var sProductType;
+                    if (bInMemberEditMode) {
+                        if (sRowId == 0) {
+                            sRowId = "newrow0";
+                        }
+                        else {
+                            oElement = document.getElementById(sRowId);
+                            oElement.style.display = "";
+                        }
+                        oElement = document.getElementById("hidden" + sRowId);
+                        oElement.style.display = "none";
+                        DisableBrowseToolBarMember(true, false, false, false, true, true, 'IBrwCnMember', sRowId, 'findBrowseMember()');
+                        bInMemberEditMode = false;
+                        BrowseMemberHelpTip(false, "");
+                        EnableTabs();
+
+                        for (i = 0; i < document.all.rdProduct.length; i++) {
+                            if (document.all.rdProduct[i].checked) {
+                                sProductType = document.all.rdProduct[i].value;
+                            }
+                        }
+                        RefreshProduct(sProductType);
+                    }
+                }
+
+                function BrowseEditMember(sRowId, IsEditable, sRADMemberId) {
+                    if (bInMemberEditMode) {
+                        return;
+                    }
+                    if (IsEditable == 'false') {
+                        alert('Cannot edit past rates.');
+                        return;
+                    }
+                    oElement = document.getElementById(sRowId);
+                    oElement.style.display = "none";
+
+                    oElement = document.getElementById("hidden" + sRowId);
+                    oElement.style.display = "";
+                    DisableBrowseToolBarMember(false, true, true, false, false, true, 'IBrwCnMember', sRowId, 'findBrowseMember()');
+                    BrowseMemberHelpTip(true, "Once the Member is captured, click the Save button to apply your changes or Undo to keep these values.");
+                    bInMemberEditMode = true;
+                    document.frmRADMember_EmpFind.EditingMemberId.value = sRADMemberId;  //The member ID we are currently working with
+                    DisableTabs();
+                }
+
+                function BrowseSaveMember(sRowId) {
+                    var mode;
+                    if (bInMemberEditMode) {
+                        if (sRowId == 0) {
+                            sRowId = "newrow0";
+                            mode = 'ADD';
+                        }
+                        else {
+                            mode = 'EDIT';
+                        }
+                        if (!CheckMemberFields("hidden" + sRowId)) {
+                            return false;
+                        }
+                        bInMemberEditMode = false;
+                        BrowseMemberHelpTip(false, "");
+                        EnableTabs();
+                        ScreenMemberSave(mode, "hidden" + sRowId);
+                    }
+                }
+
+                function CheckMemberFields(sRowId) {
+                    if (document.all('txtMemberSurname' + sRowId)) {
+                        if (document.all('txtMemberSurname' + sRowId).value == "") {
+                            ;
+                            document.all('txtMemberSurname' + sRowId).focus();
+                            alert("Please enter the surname.")
+                            return false;
+                        }
+                    }
+                    if (document.all('txtMemberInitials' + sRowId)) {
+                        if (document.all('txtMemberInitials' + sRowId).value == "") {
+                            ;
+                            document.all('txtMemberInitials' + sRowId).focus();
+                            alert("Please eneter the initials of the member.")
+                            return false;
+                        }
+                    }
+                    if (document.all('txtMemberDOBDay' + sRowId)) {
+                        if (document.all('txtMemberDOBDay' + sRowId).value == "dd" || document.all('txtMemberDOBDay' + sRowId).value == "") {
+                            ;
+                            document.all('txtMemberDOBDay' + sRowId).focus();
+                            alert("Please specify the Date of Birth.")
+                            return false;
+                        }
+                    }
+                    if (document.all('txtMemberDOBMonth' + sRowId)) {
+                        if (document.all('txtMemberDOBMonth' + sRowId).value == "mm" || document.all('txtMemberDOBMonth' + sRowId).value == "") {
+                            ;
+                            document.all('txtMemberDOBMonth' + sRowId).focus();
+                            alert("Please specify the Date of Birth.")
+                            return false;
+                        }
+                    }
+                    if (document.all('txtMemberDOBYear' + sRowId)) {
+                        if (document.all('txtMemberDOBYear' + sRowId).value == "yyyy" || document.all('txtMemberDOBYear' + sRowId).value == "") {
+                            ;
+                            document.all('txtMemberDOBYear' + sRowId).focus();
+                            alert("Please specify the Date of Birth.")
+                            return false;
+                        }
+                    }
+                    if (document.all('txtMemberDOBDay' + sRowId) && document.all('txtMemberDOBMonth' + sRowId) && document.all('txtMemberDOBYear' + sRowId)) {
+                        if (CheckDate(document.all('txtMemberDOBDay' + sRowId), document.all('txtMemberDOBMonth' + sRowId), document.all('txtMemberDOBYear' + sRowId)) == false) {
+                            return false
+                        }
+                    }
+                    if (document.all('txtMemberSalary' + sRowId)) {
+                        if (document.all('txtMemberSalary' + sRowId).value == "") {
+                            ;
+                            document.all('txtMemberSalary' + sRowId).focus();
+                            alert("Please specify the Fund Salary.")
+                            return false;
+                        }
+                    }
+
+                    var oValue;
+                    if (document.all('txtMemberSalary' + sRowId)) {
+                        oValue = document.all('txtMemberSalary' + sRowId);
+                        oValue.value = oValue.value.replace(/R/gi, "").replace(/,/gi, "");
+                        if (CheckNumeric(oValue, "Double") == false) {
+                            document.all('txtMemberSalary' + sRowId).focus();
+                            return false
+                        }
+                    }
+                    return true;
+                }
+
+                function ScreenMemberSave(mode, sRowId) {
+                    var sURL;
+                    var sProductType;
+
+                    MySubMode = MyMode;
+                    MyMode = 'MEMBERBRWOTHER';
+
+                    for (var i = 0; i < document.all.rdProduct.length; i++) {
+                        if (document.all.rdProduct[i].checked) {
+                            sProductType = document.all.rdProduct[i].value;
+                        }
+                    }
+
+                    if (mode == 'EDIT') {
+                        sURL = 'IBrwCnRADMember_Emp.aspx?ACTION=SAVEEDIT&FromScreen=Emp&ProductType=' + sProductType + '&GLPeriodId=' + document.MemberUpload.GLPeriodId.value;
+                        sURL = sURL + BuildMemberURL(sRowId);
+                        DisableBrowseRADMember_Emp();
+                        document.all.item("divLoadingIndicator").innerHTML = '
+																<img src="Images/waiting.gif" border="0" alt="" >';
+                        loadXMLDoc(sURL);
+                        // InitializeTimer();
+                    }
+                }
+
+                function BuildMemberURL(sRowId) {
+                    var sURL;
+                    var currentTime = new Date();
+                    var oRowElement = document.getElementById(sRowId);
+                    var sAnnot = document.frmRADMember_EmpFind.chkAnnotated.checked;
+
+                    sURL = '';
+                    sURL = sURL + '&RADEmployerId=' + document.frmMaint.RADEmployerID.value;
+                    sURL = sURL + '&EditingMemberId=' + document.frmRADMember_EmpFind.EditingMemberId.value;
+                    sURL = sURL + '&FindMemberSurname=' + document.frmRADMember_EmpFind.FindMemberSurname.value;
+                    sURL = sURL + '&FindMbAnnot=' + sAnnot;
+                    for (var i = 1; i <= oRowElement.cells.length - 1; i++) {
+                        switch (oRowElement.cells[i].id) {
+                            case "MemberDOB":
+                                if (oRowElement.cells[i].id != "") {
+                                    sURL = sURL + '&' + oRowElement.cells[i].id + 'Day=' + document.getElementById('txt' + oRowElement.cells[i].id + 'Day' + sRowId).value;
+                                    sURL = sURL + '&' + oRowElement.cells[i].id + 'Month=' + document.getElementById('txt' + oRowElement.cells[i].id + 'Month' + sRowId).value;
+                                    sURL = sURL + '&' + oRowElement.cells[i].id + 'Year=' + document.getElementById('txt' + oRowElement.cells[i].id + 'Year' + sRowId).value;
+                                }
+                                break;
+                            default:
+                                if (oRowElement.cells[i].id != "") {
+                                    sURL = sURL + '&' + oRowElement.cells[i].id + '=' + document.getElementById('txt' + oRowElement.cells[i].id + sRowId).value;
+                                }
+                                break;
+                        }
+                    }
+
+                    sURL = sURL + '&PageRequestTime=' + currentTime.getTime();
+                    return sURL;
+                }
+
+                function BrowseMemberHelpTip(bShow, sHelpText) {
+                    var sHTML;
+
+                    if (bShow) {
+                        sHTML = '
+																	<a id="helptip">
+																		<IMG SRC="Images/help_sml_disabled.png" align="absmiddle" border=0 alt="Help tip">
+																		</a>';
+                        sHTML += sHelpText;
+                        sHTML = '
+																		<p align=center>' + sHTML + '</p>'
+                        document.getElementById("DivMemberHelpTip").innerHTML = sHTML;
+                    }
+                    else {
+                        document.getElementById("DivMemberHelpTip").innerHTML = "";
+                    }
+                }
+
+                function DisableBrowseToolBarMember(bAdd, bEditRevert, bSave, bClose, bFind, bHelp, sScreen, sMnt, sFind) {
+                    var rowid = sMnt;
+                    //EDIT/REVERT
+                    if (document.all.item("DivMemberEditRevert")) {
+                        if (!CanEditBrw) {
+                            document.all.item("DivMemberEditRevert").innerHTML = '';
+                        }
+                        else if (bEditRevert && CanEditBrw) {
+                            sMnt = "javascript:void BrowseRevertMember('" + rowid + "')";
+                            document.all.item("DivMemberEditRevert").innerHTML = '
+																		<a href=" ' + sMnt + '"  id="cmdMemberRevert">
+																			<IMG SRC="Images/revert.png" align="absmiddle" border=0 alt="Undo">
+																			</a>';
+                        }
+                        else {
+                            document.all.item("DivMemberEditRevert").innerHTML = '
+																			<a id="cmdMemberRevert">
+																				<IMG SRC="Images/revert_disabled.png" align="absmiddle" border=0 alt="Undo">
+																				</a>';
+                        }
+                    }
+                    //SAVE
+                    if (document.all.item("DivMemberSave")) {
+                        if (!CanSaveBrw) {
+                            document.all.item("DivMemberSave").innerHTML = '';
+                        }
+                        else if (bSave && CanSaveBrw) {
+                            sMnt = "javascript:void BrowseSaveMember('" + rowid + "')";
+                            document.all.item("DivMemberSave").innerHTML = '
+																				<a href="' + sMnt + '" id="cmdMemberSave">
+																					<IMG SRC="Images/save.png" align="absmiddle" border=0 alt="Save">
+																					</a>';
+                        }
+                        else {
+                            document.all.item("DivMemberSave").innerHTML = '
+																					<a id="cmdMemberSave">
+																						<IMG SRC="Images/save_disabled.png" align="absmiddle" border=0 alt="Save">
+																						</a>';
+                        }
+                    }
+                    else {
+                        //document.all.item("DivMemberHelp").innerHTML = '
+																						<a id="A1">
+																							<IMG SRC="Images/help_disabled.png" align="absmiddle" border=0 alt="General help on browse screens">
+																							</a>';
+                    }
+                }
+                function CheckMemberChanges() {
+                    var winURL = "ShowMemberChanges.aspx?GLPeriodId=" + document.MemberUpload.GLPeriodId.value + "&RADEmployerId=" + document.frmMaint.RADEmployerID.value;
+                    newWindow = window.open(winURL, 'Win2', 'resizable=yes, toolbar=no,scrollbars=yes,top=150, left=200,width=650,height=650');
+
+                }
+    
+																						</script>
+																					</HEAD>
+																					<MaintViewMode:Start>
+																						<BODY ONLOAD="ViewRecord(
+																							<MaintValue:RADEmployerID>)">
+																								<MaintViewMode:End>
+																									<MaintAddMode:Start>
+																										<BODY ONLOAD="ScreenAddMode()">
+																											<MaintAddMode:End>
+																												<MaintEditMode:Start>
+																													<BODY ONLOAD="EditRecord(
+																														<MaintValue:RADEmployerID>)">
+																															<MaintEditMode:End>
+																																<MaintDeleteMode:Start>
+																																	<BODY ONLOAD="DeleteRecord(
+																																		<MaintValue:RADEmployerID>)">
+																																			<MaintDeleteMode:End>
+																																				<TABLE width="100%" style="z-index:50; background-color:White">
+																																					<TR>
+																																						<TD>
+																																							<DIV class="PAGETITLE">
+																																								<IMG SRC="Images/Jigsaw%20Logo.png" align="absmiddle" alt=""
+                                                                     style="height: 87px; width: 186px">
+                                                                Client Setup
+                                                            
+																																								</DIV>
+																																							</TD>
+																																							<TD>
+																																								<DIV id="divSessionDetail" class="SESSIONDETAIL">
+																																									<SSN:EMPNAME>
+																																									</DIV>
+																																								</TD>
+																																								<TD valign=middle align=right width="10%">
+																																									<DIV id="divLoadingIndicator"></DIV>
+																																								</TD>
+																																							</TR>
+																																						</TABLE>
+																																						<BR>
+																																							<script src="coolmenus3.js" type="text/javascript"></script>
+																																							<script src="SysTimeout.js" type="text/javascript"></script>
+																																							<script src="menu_pre.js" type="text/javascript"></script>
+																																							<script src="IMntRADEmployer.js" type="text/javascript"></script>
+																																							<script type="text/javascript">
+																																								<Import:mainmenu.js>
+																																								</script>
+																																								<script src="menu_post.js" type="text/javascript"></script>
+																																								<script src="Cymaziz.js" type="text/javascript"></script>
+																																								<table cellpadding=1 cellspacing=0 border=0 width="100%" ID="Table1" class="Gradient">
+																																									<!--Maintenance Buttons-->
+																																									<tr>
+																																										<TD>
+                                                            This screen allows you to administer the various Clients (Employers) recorded in the system
+                                                            
+																																											<div class="MustHaveField">Note that the compulsory fields are marked with *.</div>
+																																										</TD>
+																																										<td align=left valign=top width="5">
+																																											<DIV ID="DivHelp">
+																																												<a href="##" id="cmdHelp" onclick="popUpWindow('ShowMaintHelp')">
+																																													<IMG SRC="Images/help.png" align="absmiddle" border=0 alt="General help on maintenance screens">
+																																													</a>
+																																												</DIV>
+																																											</td>
+																																											<td align=left valign=top width="5">
+																																												<DIV ID="DivClose">
+																																													<a href="IMntRADEmployer.aspx?action=closescreen" id="cmdClose">
+																																														<IMG SRC="Images/close.png" align="absmiddle" border=0 alt="Close">
+																																														</a>
+																																													</DIV>
+																																												</td>
+																																												<td align=left valign=top width="5">
+																																													<DIV ID="DivAdd">
+																																														<a href="javascript:void ScreenAddMode()" id="cmdAdd">
+																																															<IMG SRC="Images/new.png" align="absmiddle" border=0 alt="Add a new entry">
+																																															</a>
+																																														</DIV>
+																																													</td>
+																																													<td align=left valign=top width="5">
+																																														<DIV ID="DivEditRevert">
+																																															<a href="javascript:void ScreenEditMode()" id="cmdEdit">
+																																																<IMG SRC="Images/edit.png" align="absmiddle" border=0 alt="Edit this entry">
+																																																</a>
+																																																<a href="javascript:void ScreenRevert()" id="cmdRevert">
+																																																	<IMG SRC="Images/revert.png" align="absmiddle" border=0 alt="Undo">
+																																																	</a>
+																																																</DIV>
+																																															</td>
+																																															<td align=left valign=top width="5">
+																																																<DIV ID="DivSave">
+																																																	<a href="javascript:void ScreenSave()" id="cmdSave">
+																																																		<IMG SRC="Images/save.png" align="absmiddle" border=0 alt="Save">
+																																																		</a>
+																																																	</DIV>
+																																																</td>
+																																																<td align=left valign=top width="5">
+																																																	<DIV ID="DivDelete">
+																																																		<a href="javascript:void ScreenDelete()" id="cmdDelete">
+																																																			<IMG SRC="Images/delete.png" align="absmiddle" border=0 alt="Delete">
+																																																			</a>
+																																																		</DIV>
+																																																	</td>
+																																																	<td align=left valign=top width="5">
+																																																		<DIV ID="DivTop">
+																																																			<a href="javascript:void MoveTop()" id="cmdMoveTop">
+																																																				<IMG SRC="Images/first.png" align="absmiddle" border=0 alt="Move Top">
+																																																				</a>
+																																																			</DIV>
+																																																		</td>
+																																																		<td align=left valign=top width="5">
+																																																			<DIV ID="DivPrevious">
+																																																				<a href="javascript:void MovePrevious()" id="cmdMovePrevious">
+																																																					<IMG SRC="Images/previous.png" align="absmiddle" border=0 alt="Move Previous">
+																																																					</a>
+																																																				</DIV>
+																																																			</td>
+																																																			<td align=left valign=top width="5">
+																																																				<DIV ID="DivNext">
+																																																					<a href="javascript:void MoveNext()" id="cmdMoveNext">
+																																																						<IMG SRC="Images/next.png" align="absmiddle" border=0 alt="Move Next">
+																																																						</a>
+																																																					</DIV>
+																																																				</td>
+																																																				<td align=left valign=top width="5">
+																																																					<DIV ID="DivBottom">
+																																																						<a href="javascript:void MoveBottom()" id="cmdMoveLast">
+																																																							<IMG SRC="Images/last.png" align="absmiddle" border=0 alt="Move Bottom">
+																																																							</a>
+																																																						</DIV>
+																																																					</td>
+																																																				</tr>
+																																																			</table>
+																																																			<FORM NAME="frmMaint" ID="frmMaint" METHOD="POST" style="background-color:White">
+																																																				<INPUT TYPE="HIDDEN" NAME="RADEmployerID" VALUE="
+																																																					<MaintValue:RADEmployerID>">
+																																																						<input type=hidden name="thecurrenttab" id="thecurrenttab" value="">
+																																																							<input type=hidden name="dc" id="dc" value="
+																																																								<MaintValue:DC>">
+																																																									<input type=hidden name="IsLocked" id="IsLocked" value="">
+																																																										<input type=hidden name="LockPeriod" id="LockPeriod" value="">
+																																																											<input type=hidden name="Action" id="Action" value="">
+																																																												<input type=hidden name="GLPeriod" id="GLPeriod" value="">
+																																																													<input type=hidden name="SysPeriod" id="SysPeriod" value="
+																																																														<MaintValue:SysPeriod>">
+																																																															<input type=hidden name="ProductType" id="ProductType" value="">
+																																																																<input type=hidden name="ImportError" id="ImportError" value="
+																																																																	<MaintValue:ImportError>">
+																																																																		<input type=hidden name="IsValidate" id="IsValidate" value="
+																																																																			<MaintValue:IsValidate>">
+																																																																				<TABLE CELLPADDING=1 CELLSPACING=0 BORDER=0 width=97% style="z-index:51; background-color:White">
+																																																																					<TR>
+																																																																						<TD ALIGN=right VALIGN=top>
+																																																																							<Phrase:Caption:IMntRADEmployerlblEmpName>
+																																																																							</TD>
+																																																																							<TD ALIGN=left VALIGN=top colspan="3">
+																																																																								<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=220 SIZE=80 TYPE="TEXT" NAME="EmpName" onfocus="BgFocus('EmpName')" onblur="BgBlur('EmpName')" VALUE="">
+																																																																									<INPUT TYPE="HIDDEN" NAME="hidEmpName" VALUE="
+																																																																										<MaintValue:EmpName>">
+																																																																											<INPUT TYPE="HIDDEN" NAME="oldEmpName" VALUE="
+																																																																												<MaintValue:EmpName>">
+																																																																													<span class="MustHaveField">*</span>
+																																																																												</TD>
+																																																																												<td ALIGN=right>
+																																																																													<DIV ID="divRecalc" style="visibility:visible">
+																																																																														<input type=button value=" Recalc for System Period " width="300px" onclick="return RecalcEmp()" name="btnRecalc" ID="btnRecalc" 
+																																																																															<MNT:SYSDISABLR>
+                                                                        >
+																																																																																<br>
+																																																																																	<input type=button value="Recalc for Selected Period" width="100px" onclick="return RecalcEmpEff()" name="btnRecalcEff" ID="btnRecalcEff" 
+																																																																																		<MNT:EFFDISABLR>
+                                                                            >
+																																																																																			<br>
+																																																																																				<a href="javascript:void ClearMember()"></a>
+																																																																																			</DIV>
+																																																																																		</td>
+																																																																																		<td ALIGN=left>
+																																																																																			<DIV ID="divLock" style="visibility:hidden">
+																																																																																				<input type=button value="  Lock  " width="100px" onclick="return LockEmp(true)" name="btnLock" ID="btnLock" 
+																																																																																					<MNT:LOCKDISABLE>
+                                                                        >
+																																																																																						<br>
+																																																																																							<input type=button value="Unlock" width="50px" onclick="return LockEmp(false)" name="btnUnlock" ID="btnUnlock" 
+																																																																																								<MNT:UNLOCKDISABLE> >
+																																																																																									<br>
+																																																																																									</DIV>
+																																																																																								</td>
+																																																																																							</TR>
+																																																																																						</TABLE>
+																																																																																						<INPUT TYPE="BUTTON" ID="cmdMain" CLASS="tabOn" VALUE="Client Details" onClick="tabOnClick(1)" NAME="1">
+																																																																																							<INPUT TYPE="BUTTON" ID="cmdFund" CLASS="tabOff" VALUE="Fund Setup" onClick="tabOnClick(6)" NAME="6">
+																																																																																								<INPUT TYPE="BUTTON" ID="cmdMember" CLASS="tabOff" VALUE="Member Schedule" onClick="tabOnClick(9)" NAME="9">
+																																																																																									<INPUT TYPE="BUTTON" ID="cmdNotes" CLASS="tabOff" VALUE="Notes" onClick="tabOnClick(2)" NAME="2">
+																																																																																										<INPUT TYPE="BUTTON" ID="cmdLogo" CLASS="tabOff" VALUE="Upload Logo" onClick="tabOnClick(3)" NAME="3">
+																																																																																											<INPUT TYPE="BUTTON" ID="cmdComm" CLASS="tabOff" VALUE="Communications" onClick="tabOnClick(4)" NAME="4" style="visibility:hidden">
+																																																																																												<INPUT TYPE="BUTTON" ID="cmdFin" CLASS="tabOff" VALUE="Financials" onClick="tabOnClick(5)" NAME="5" style="visibility:hidden">
+																																																																																													<br>
+																																																																																														<DIV ID="divMain" class="tabframe" style="visibility:hidden;height:470;z-index:0">
+																																																																																															<TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0 width="100%">
+																																																																																																<TR>
+																																																																																																	<TD ALIGN=right VALIGN=top>
+																																																																																																		<Phrase:Caption:IMntRADEmployerlblEmpCommonName>
+																																																																																																		</TD>
+																																																																																																		<TD ALIGN=left VALIGN=top>
+																																																																																																			<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=200 SIZE=50 TYPE="TEXT" NAME="EmpCommonName" onfocus="BgFocus('EmpCommonName')" onblur="BgBlur('EmpCommonName')" VALUE="">
+																																																																																																				<INPUT TYPE="HIDDEN" NAME="hidEmpCommonName" VALUE="undefined<MaintValue:EmpCommonName>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpCommonName" VALUE="undefined<MaintValue:EmpCommonName>">undefined</TD>undefined<TD ALIGN=right VALIGN=top>
+                                                                    Client Contact:
+                                                                </TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=200 SIZE=50 TYPE="TEXT" NAME="ContactPerson" onfocus="BgFocus('ContactPerson')" onblur="BgBlur('ContactPerson')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidContactPerson" VALUE="undefined<MaintValue:ContactPerson>">undefined<INPUT TYPE="HIDDEN" NAME="oldContactPerson" VALUE="undefined<MaintValue:ContactPerson>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblAgentId>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<MultiCombo>undefined<Name>AgentId</Name>undefined<FromClause>Agent</FromClause>undefined<WhereClause>InvalidRecord = { oData.SQLBoolean(False) }</WhereClause>undefined<Fields>undefined<BrowseField>undefined<FieldName>AgentID</FieldName>undefined<ColumnHeading>AgentID</ColumnHeading>undefined<FieldType>DataLong</FieldType>undefined<ColumnWidth>0</ColumnWidth>undefined<ColumnVisible>False</ColumnVisible>undefined<TableName>Agent</TableName>undefined</BrowseField>undefined<BrowseField>undefined<FieldName>AgentName</FieldName>undefined<ColumnHeading>Agent</ColumnHeading>undefined<FieldType>DataText</FieldType>undefined<ColumnWidth>600</ColumnWidth>undefined<ColumnVisible>True</ColumnVisible>undefined<TableName>Agent</TableName>undefined</BrowseField>undefined</Fields>undefined<PrimaryKeys>undefined<PrimaryKeyField>undefined<FieldName>Agent.AgentName</FieldName>undefined<FieldType>TEXT</FieldType>undefined</PrimaryKeyField>undefined<PrimaryKeyField>undefined<FieldName>Agent.AgentID</FieldName>undefined<FieldType>LONG</FieldType>undefined</PrimaryKeyField>undefined</PrimaryKeys>undefined<IDField>2</IDField>undefined<DescField>2</DescField>undefined<ShowClear>N</ShowClear>undefined</MultiCombo>undefined<INPUT TYPE="HIDDEN" NAME="oldAgentId" VALUE="undefined<MaintValue:AgentId>">undefined<INPUT TYPE="HIDDEN" NAME="oldDescAgentId" VALUE="undefined<MaintValue:AgentId>">undefined<span class="MustHaveField">*</span>undefined</TD>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblAgentContactId>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<MultiCombo>undefined<Name>AgentContactId</Name>undefined<FromClause>ContactPerson</FromClause>undefined<WhereClause>InvalidRecord = { oData.SQLBoolean(False) } AND ContactPersonType = 1  </WhereClause>undefined<GetRequestClause> AND ParentId = GetRequestVariable(CargoId)</GetRequestClause>undefined<Fields>undefined<BrowseField>undefined<FieldName>ContactPersonID</FieldName>undefined<ColumnHeading>ContactPersonID</ColumnHeading>undefined<FieldType>DataLong</FieldType>undefined<ColumnWidth>100</ColumnWidth>undefined<ColumnVisible>False</ColumnVisible>undefined<TableName>ContactPerson</TableName>undefined</BrowseField>undefined<BrowseField>undefined<FieldName>ContactName</FieldName>undefined<ColumnHeading>Surname</ColumnHeading>undefined<FieldType>DataText</FieldType>undefined<ColumnWidth>100</ColumnWidth>undefined<ColumnVisible>True</ColumnVisible>undefined<TableName>ContactPerson</TableName>undefined</BrowseField>undefined</Fields>undefined<PrimaryKeys>undefined<PrimaryKeyField>undefined<FieldName>ContactPerson.ContactName</FieldName>undefined<FieldType>TEXT</FieldType>undefined</PrimaryKeyField>undefined<PrimaryKeyField>undefined<FieldName>ContactPerson.ContactPersonID</FieldName>undefined<FieldType>LONG</FieldType>undefined</PrimaryKeyField>undefined</PrimaryKeys>undefined<IDField>2</IDField>undefined<DescField>2</DescField>undefined<ShowClear>Y</ShowClear>undefined</MultiCombo>undefined<INPUT TYPE="HIDDEN" NAME="oldAgentContactId" VALUE="undefined<MaintValue:AgentContactId>">undefined<INPUT TYPE="HIDDEN" NAME="oldDescAgentContactId" VALUE="undefined<MaintValue:AgentContactId>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblTelephoneNumber>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=50 SIZE=20 TYPE="TEXT" NAME="TelephoneNumber" onfocus="BgFocus('TelephoneNumber')" onblur="BgBlur('TelephoneNumber')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidTelephoneNumber" VALUE="undefined<MaintValue:TelephoneNumber>">undefined<INPUT TYPE="HIDDEN" NAME="oldTelephoneNumber" VALUE="undefined<MaintValue:TelephoneNumber>">undefined</TD>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblEmail>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=200 SIZE=40 TYPE="TEXT" NAME="Email" onfocus="BgFocus('Email')" onblur="BgBlur('Email')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidEmail" VALUE="undefined<MaintValue:Email>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmail" VALUE="undefined<MaintValue:Email>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>
+                                                                    Alternate Telephone:
+                                                                </TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=200 SIZE=20 TYPE="TEXT" NAME="TelephoneNumber2" onfocus="BgFocus('TelephoneNumber2')" onblur="BgBlur('TelephoneNumber2')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidTelephoneNumber2" VALUE="undefined<MaintValue:TelephoneNumber2>">undefined<INPUT TYPE="HIDDEN" NAME="oldTelephoneNumber2" VALUE="undefined<MaintValue:TelephoneNumber2>">undefined</TD>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblEmpRef>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=150 SIZE=20 TYPE="TEXT" NAME="EmpRef" onfocus="BgFocus('EmpRef')" onblur="BgBlur('EmpRef')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidEmpRef" VALUE="undefined<MaintValue:EmpRef>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpRef" VALUE="undefined<MaintValue:EmpRef>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblFaxNumber>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=50 SIZE=20 TYPE="TEXT" NAME="FaxNumber" onfocus="BgFocus('FaxNumber')" onblur="BgBlur('FaxNumber')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidFaxNumber" VALUE="undefined<MaintValue:FaxNumber>">undefined<INPUT TYPE="HIDDEN" NAME="oldFaxNumber" VALUE="undefined<MaintValue:FaxNumber>">undefined</TD>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblEmployerRegNo>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=50 SIZE=20 TYPE="TEXT" NAME="EmployerRegNo" onfocus="BgFocus('EmployerRegNo')" onblur="BgBlur('EmployerRegNo')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidEmployerRegNo" VALUE="undefined<MaintValue:EmployerRegNo>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmployerRegNo" VALUE="undefined<MaintValue:EmployerRegNo>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>
+                                                                    Commencement Date:
+                                                                </TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" TYPE="TEXT" NAME="EmpJoinDateDay" MAXLENGTH=2 SIZE=1 onfocus="BgFocus('EmpJoinDateDay'); ClearTextboxValues(document.frmMaint.EmpJoinDateDay,'dd');" onblur="DateCheck(EmpJoinDateDay,EmpJoinDateMonth,true)" VALUE="undefined<MaintValue:EmpJoinDateDay>">    /
+                                                                    undefined<INPUT onkeypress="return EnterEventSubmit()" TYPE="TEXT" NAME="EmpJoinDateMonth" MAXLENGTH=2 SIZE=1 onfocus="BgFocus('EmpJoinDateMonth'); ClearTextboxValues(document.frmMaint.EmpJoinDateMonth,'mm');" onblur="DateCheck(EmpJoinDateMonth,EmpJoinDateYear,true)" VALUE="undefined<MaintValue:EmpJoinDateMonth>">    /
+                                                                    undefined<INPUT onkeypress="return EnterEventSubmit()" TYPE="TEXT" NAME="EmpJoinDateYear" MAXLENGTH=4 SIZE=2 onfocus="BgFocus('EmpJoinDateYear'); ClearTextboxValues(document.frmMaint.EmpJoinDateYear,'yyyy');" onblur="DateCheck(EmpJoinDateYear,EmpJoinDateYear,true)" VALUE="undefined<MaintValue:EmpJoinDateYear>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpJoinDateDay" VALUE="undefined<MaintValue:EmpJoinDateDay>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpJoinDateMonth" VALUE="undefined<MaintValue:EmpJoinDateMonth>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpJoinDateYear" VALUE="undefined<MaintValue:EmpJoinDateYear>">undefined<span class="MustHaveField">*</span>undefined</TD>undefined<TD ALIGN=right VALIGN=top>
+                                                                    Administered By:
+                                                                </TD>undefined<TD ALIGN=left VALIGN=top>undefined<MultiCombo>undefined<Name>RADUserId</Name>undefined<FromClause>AAUser</FromClause>undefined<WhereClause>InvalidRecord = { oData.SQLBoolean(False) } AND ProfileId IN (undefined<MCBOValue:ProfileIdList>)undefined</WhereClause>undefined<Fields>undefined<BrowseField>undefined<FieldName>UserID</FieldName>undefined<ColumnHeading>UserID</ColumnHeading>undefined<FieldType>DataLong</FieldType>undefined<ColumnWidth>100</ColumnWidth>undefined<ColumnVisible>False</ColumnVisible>undefined<TableName>AAUser</TableName>undefined</BrowseField>undefined<BrowseField>undefined<FieldName>LoginName</FieldName>undefined<ColumnHeading>Name</ColumnHeading>undefined<FieldType>DataText</FieldType>undefined<ColumnWidth>600</ColumnWidth>undefined<ColumnVisible>True</ColumnVisible>undefined<TableName>AAUser</TableName>undefined</BrowseField>undefined</Fields>undefined<PrimaryKeys>undefined<PrimaryKeyField>undefined<FieldName>AAUser.LoginName</FieldName>undefined<FieldType>TEXT</FieldType>undefined</PrimaryKeyField>undefined<PrimaryKeyField>undefined<FieldName>AAUser.UserID</FieldName>undefined<FieldType>LONG</FieldType>undefined</PrimaryKeyField>undefined</PrimaryKeys>undefined<IDField>2</IDField>undefined<DescField>2</DescField>undefined<ShowClear>Y</ShowClear>undefined</MultiCombo>undefined<INPUT TYPE="HIDDEN" NAME="oldRADUserId" VALUE="undefined<MaintValue:RADUserId>">undefined<INPUT TYPE="HIDDEN" NAME="oldDescRADUserId" VALUE="undefined<MaintValue:RADUserId>">undefined<span class="MustHaveField">*</span>undefined<INPUT TYPE="HIDDEN" NAME="AdministratorId" VALUE="undefined<MaintValue:AdministratorId>">undefined<INPUT TYPE="HIDDEN" NAME="AdministrationRate" VALUE="undefined<MaintValue:AdministrationRate>">undefined<INPUT TYPE="HIDDEN" NAME="oldAdministrationRate" VALUE="undefined<MaintValue:AdministrationRate>">undefined<INPUT TYPE="HIDDEN" NAME="RADSysId" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidRADSysId" VALUE="undefined<MaintValue:RADSysId>">undefined<INPUT TYPE="HIDDEN" NAME="oldRADSysId" VALUE="undefined<MaintValue:RADSysId>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblEmpCaptureDate>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" TYPE="TEXT" NAME="EmpCaptureDateDay" MAXLENGTH=2 SIZE=1 onfocus="BgFocus('EmpCaptureDateDay'); ClearTextboxValues(document.frmMaint.EmpCaptureDateDay,'dd');" onblur="DateCheck(EmpCaptureDateDay,EmpCaptureDateMonth,true)" VALUE="undefined<MaintValue:EmpCaptureDateDay>">    /
+                                                                    undefined<INPUT onkeypress="return EnterEventSubmit()" TYPE="TEXT" NAME="EmpCaptureDateMonth" MAXLENGTH=2 SIZE=1 onfocus="BgFocus('EmpCaptureDateMonth'); ClearTextboxValues(document.frmMaint.EmpCaptureDateMonth,'mm');" onblur="DateCheck(EmpCaptureDateMonth,EmpCaptureDateYear,true)" VALUE="undefined<MaintValue:EmpCaptureDateMonth>">    /
+                                                                    undefined<INPUT onkeypress="return EnterEventSubmit()" TYPE="TEXT" NAME="EmpCaptureDateYear" MAXLENGTH=4 SIZE=2 onfocus="BgFocus('EmpCaptureDateYear'); ClearTextboxValues(document.frmMaint.EmpCaptureDateYear,'yyyy');" onblur="DateCheck(EmpCaptureDateYear,EmpCaptureDateYear,true)" VALUE="undefined<MaintValue:EmpCaptureDateYear>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpCaptureDateDay" VALUE="undefined<MaintValue:EmpCaptureDateDay>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpCaptureDateMonth" VALUE="undefined<MaintValue:EmpCaptureDateMonth>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpCaptureDateYear" VALUE="undefined<MaintValue:EmpCaptureDateYear>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>
+                                                                    Termination Date:
+                                                                </TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" TYPE="TEXT" NAME="EmpLeftDateDay" MAXLENGTH=2 SIZE=1 onfocus="BgFocus('EmpLeftDateDay'); ClearTextboxValues(document.frmMaint.EmpLeftDateDay,'dd');" onblur="DateCheck(EmpLeftDateDay,EmpLeftDateMonth,false)" VALUE="undefined<MaintValue:EmpLeftDateDay>">    /
+                                                                    undefined<INPUT onkeypress="return EnterEventSubmit()" TYPE="TEXT" NAME="EmpLeftDateMonth" MAXLENGTH=2 SIZE=1 onfocus="BgFocus('EmpLeftDateMonth'); ClearTextboxValues(document.frmMaint.EmpLeftDateMonth,'mm');" onblur="DateCheck(EmpLeftDateMonth,EmpLeftDateYear,false)" VALUE="undefined<MaintValue:EmpLeftDateMonth>">    /
+                                                                    undefined<INPUT onkeypress="return EnterEventSubmit()" TYPE="TEXT" NAME="EmpLeftDateYear" MAXLENGTH=4 SIZE=2 onfocus="BgFocus('EmpLeftDateYear'); ClearTextboxValues(document.frmMaint.EmpLeftDateYear,'yyyy');" onblur="DateCheck(EmpLeftDateYear,EmpLeftDateYear,false)" VALUE="undefined<MaintValue:EmpLeftDateYear>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpLeftDateDay" VALUE="undefined<MaintValue:EmpLeftDateDay>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpLeftDateMonth" VALUE="undefined<MaintValue:EmpLeftDateMonth>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpLeftDateYear" VALUE="undefined<MaintValue:EmpLeftDateYear>">undefined</TD>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblIsAutoCalculate>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT id="IsAutoCalculate" TYPE="CHECKBOX" VALUE="True" name="IsAutoCalculate" onfocus="SetTooltip('IsAutoCalculate')" onblur="SetTooltip('')">undefined<INPUT TYPE="HIDDEN" NAME="oldIsAutoCalculate" VALUE="undefined<MaintValue:IsAutoCalculate>">undefined</TD>undefined<TD ALIGN=left VALIGN=top></TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADbIsJigsaw>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT id="bIsJigsaw" TYPE="CHECKBOX" VALUE="True" name="bIsJigsaw" onfocus="SetTooltip('bIsJigsaw')" onblur="SetTooltip('')">undefined<INPUT TYPE="HIDDEN" NAME="oldbIsJigsaw" VALUE="undefined<MaintValue:bIsJigsaw>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>
+                                                                    Insurer Policy Reference Number:
+                                                                </TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=100 SIZE=50 TYPE="TEXT" NAME="InsurerRefNo" onfocus="BgFocus('InsurerRefNo')" onblur="BgBlur('InsurerRefNo')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidInsurerRefNo" VALUE="undefined<MaintValue:InsurerRefNo>">undefined<INPUT TYPE="HIDDEN" NAME="oldInsurerRefNo" VALUE="undefined<MaintValue:InsurerRefNo>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined</br>undefined</TD>undefined<TD ALIGN=left VALIGN=top></TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblStreetAddressLine1>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=100 SIZE=50 TYPE="TEXT" NAME="StreetAddressLine1" onfocus="BgFocus('StreetAddressLine1')" onblur="BgBlur('StreetAddressLine1')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidStreetAddressLine1" VALUE="undefined<MaintValue:StreetAddressLine1>">undefined<INPUT TYPE="HIDDEN" NAME="oldStreetAddressLine1" VALUE="undefined<MaintValue:StreetAddressLine1>">undefined</TD>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblPostalAddressLine1>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=100 SIZE=50 TYPE="TEXT" NAME="PostalAddressLine1" onfocus="BgFocus('PostalAddressLine1')" onblur="BgBlur('PostalAddressLine1')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidPostalAddressLine1" VALUE="undefined<MaintValue:PostalAddressLine1>">undefined<INPUT TYPE="HIDDEN" NAME="oldPostalAddressLine1" VALUE="undefined<MaintValue:PostalAddressLine1>">undefined</TD>undefined</TR>undefined<TR>undefined<TD></TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=100 SIZE=50 TYPE="TEXT" NAME="StreetAddressLine2" onfocus="BgFocus('StreetAddressLine2')" onblur="BgBlur('StreetAddressLine2')" VALUE="">undefined<BR>undefined<INPUT TYPE="HIDDEN" NAME="hidStreetAddressLine2" VALUE="undefined<MaintValue:StreetAddressLine2>">undefined<INPUT TYPE="HIDDEN" NAME="oldStreetAddressLine2" VALUE="undefined<MaintValue:StreetAddressLine2>">undefined</TD>undefined<TD></TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=100 SIZE=50 TYPE="TEXT" NAME="PostalAddressLine2" onfocus="BgFocus('PostalAddressLine2')" onblur="BgBlur('PostalAddressLine2')" VALUE="">undefined<BR>undefined<INPUT TYPE="HIDDEN" NAME="hidPostalAddressLine2" VALUE="undefined<MaintValue:PostalAddressLine2>">undefined<INPUT TYPE="HIDDEN" NAME="oldPostalAddressLine2" VALUE="undefined<MaintValue:PostalAddressLine2>">undefined</TD>undefined</TR>undefined<TR>undefined<TD></TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=100 SIZE=50 TYPE="TEXT" NAME="StreetAddressLine3" onfocus="BgFocus('StreetAddressLine3')" onblur="BgBlur('StreetAddressLine3')" VALUE="">undefined<BR>undefined<INPUT TYPE="HIDDEN" NAME="hidStreetAddressLine3" VALUE="undefined<MaintValue:StreetAddressLine3>">undefined<INPUT TYPE="HIDDEN" NAME="oldStreetAddressLine3" VALUE="undefined<MaintValue:StreetAddressLine3>">undefined</TD>undefined<TD></TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=100 SIZE=50 TYPE="TEXT" NAME="PostalAddressLine3" onfocus="BgFocus('PostalAddressLine3')" onblur="BgBlur('PostalAddressLine3')" VALUE="">undefined<BR>undefined<INPUT TYPE="HIDDEN" NAME="hidPostalAddressLine3" VALUE="undefined<MaintValue:PostalAddressLine3>">undefined<INPUT TYPE="HIDDEN" NAME="oldPostalAddressLine3" VALUE="undefined<MaintValue:PostalAddressLine3>">undefined</TD>undefined</TR>undefined<TR>undefined<TD></TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=100 SIZE=50 TYPE="TEXT" NAME="StreetAddressLine4" onfocus="BgFocus('StreetAddressLine4')" onblur="BgBlur('StreetAddressLine4')" VALUE="">undefined<BR>undefined<INPUT TYPE="HIDDEN" NAME="hidStreetAddressLine4" VALUE="undefined<MaintValue:StreetAddressLine4>">undefined<INPUT TYPE="HIDDEN" NAME="oldStreetAddressLine4" VALUE="undefined<MaintValue:StreetAddressLine4>">undefined</TD>undefined<TD></TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=100 SIZE=50 TYPE="TEXT" NAME="PostalAddressLine4" onfocus="BgFocus('PostalAddressLine4')" onblur="BgBlur('PostalAddressLine4')" VALUE="">undefined<BR>undefined<INPUT TYPE="HIDDEN" NAME="hidPostalAddressLine4" VALUE="undefined<MaintValue:PostalAddressLine4>">undefined<INPUT TYPE="HIDDEN" NAME="oldPostalAddressLine4" VALUE="undefined<MaintValue:PostalAddressLine4>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblStreetAddressCode>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=20 SIZE=20 TYPE="TEXT" NAME="StreetAddressCode" onfocus="BgFocus('StreetAddressCode')" onblur="BgBlur('StreetAddressCode')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidStreetAddressCode" VALUE="undefined<MaintValue:StreetAddressCode>">undefined<INPUT TYPE="HIDDEN" NAME="oldStreetAddressCode" VALUE="undefined<MaintValue:StreetAddressCode>">undefined</TD>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblPostalAddressCode>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=20 SIZE=20 TYPE="TEXT" NAME="PostalAddressCode" onfocus="BgFocus('PostalAddressCode')" onblur="BgBlur('PostalAddressCode')" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidPostalAddressCode" VALUE="undefined<MaintValue:PostalAddressCode>">undefined<INPUT TYPE="HIDDEN" NAME="oldPostalAddressCode" VALUE="undefined<MaintValue:PostalAddressCode>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>
+                                                                    Industry Category:
+                                                                </TD>undefined<TD ALIGN=left VALIGN=top>undefined<MultiCombo>undefined<Name>NatureOfBusinessId</Name>undefined<FromClause>NatureOfBusiness</FromClause>undefined<WhereClause>InvalidRecord = { oData.SQLBoolean(False) }</WhereClause>undefined<Fields>undefined<BrowseField>undefined<FieldName>NatureOfBusinessID</FieldName>undefined<ColumnHeading>NatureOfBusinessID</ColumnHeading>undefined<FieldType>DataLong</FieldType>undefined<ColumnWidth>100</ColumnWidth>undefined<ColumnVisible>False</ColumnVisible>undefined<TableName>NatureOfBusiness</TableName>undefined</BrowseField>undefined<BrowseField>undefined<FieldName>BusinessType</FieldName>undefined<ColumnHeading>Business Type</ColumnHeading>undefined<FieldType>DataText</FieldType>undefined<ColumnWidth>550</ColumnWidth>undefined<ColumnVisible>True</ColumnVisible>undefined<TableName>NatureOfBusiness</TableName>undefined</BrowseField>undefined<BrowseField>undefined<FieldName>BusinessTypeDescription</FieldName>undefined<ColumnHeading>Description</ColumnHeading>undefined<FieldType>DataText</FieldType>undefined<ColumnWidth>200</ColumnWidth>undefined<ColumnVisible>False</ColumnVisible>undefined<TableName>NatureOfBusiness</TableName>undefined</BrowseField>undefined</Fields>undefined<PrimaryKeys>undefined<PrimaryKeyField>undefined<FieldName>NatureOfBusiness.BusinessType</FieldName>undefined<FieldType>TEXT</FieldType>undefined</PrimaryKeyField>undefined<PrimaryKeyField>undefined<FieldName>NatureOfBusiness.NatureOfBusinessID</FieldName>undefined<FieldType>LONG</FieldType>undefined</PrimaryKeyField>undefined</PrimaryKeys>undefined<IDField>2</IDField>undefined<DescField>2</DescField>undefined<ShowClear>Y</ShowClear>undefined</MultiCombo>undefined<INPUT TYPE="HIDDEN" NAME="oldNatureOfBusinessId" VALUE="undefined<MaintValue:NatureOfBusinessId>">undefined<INPUT TYPE="HIDDEN" NAME="oldDescNatureOfBusinessId" VALUE="undefined<MaintValue:NatureOfBusinessId>">undefined</TD>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblRADRegionId>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<MultiCombo>undefined<Name>RADRegionId</Name>undefined<FromClause>RADRegion</FromClause>undefined<WhereClause>InvalidRecord = { oData.SQLBoolean(False) }</WhereClause>undefined<Fields>undefined<BrowseField>undefined<FieldName>RADRegionID</FieldName>undefined<ColumnHeading>RADRegionID</ColumnHeading>undefined<FieldType>DataLong</FieldType>undefined<ColumnWidth>100</ColumnWidth>undefined<ColumnVisible>False</ColumnVisible>undefined<TableName>RADRegion</TableName>undefined</BrowseField>undefined<BrowseField>undefined<FieldName>RegionName</FieldName>undefined<ColumnHeading>Region</ColumnHeading>undefined<FieldType>DataText</FieldType>undefined<ColumnWidth>200</ColumnWidth>undefined<ColumnVisible>True</ColumnVisible>undefined<TableName>RADRegion</TableName>undefined</BrowseField>undefined<BrowseField>undefined<FieldName>RegionAbbrev</FieldName>undefined<ColumnHeading>Region Code</ColumnHeading>undefined<FieldType>DataText</FieldType>undefined<ColumnWidth>100</ColumnWidth>undefined<ColumnVisible>True</ColumnVisible>undefined<TableName>RADRegion</TableName>undefined</BrowseField>undefined</Fields>undefined<PrimaryKeys>undefined<PrimaryKeyField>undefined<FieldName>RADRegion.RegionName</FieldName>undefined<FieldType>TEXT</FieldType>undefined</PrimaryKeyField>undefined<PrimaryKeyField>undefined<FieldName>RADRegion.RADRegionID</FieldName>undefined<FieldType>LONG</FieldType>undefined</PrimaryKeyField>undefined</PrimaryKeys>undefined<IDField>2</IDField>undefined<DescField>2</DescField>undefined<ShowClear>Y</ShowClear>undefined</MultiCombo>undefined<INPUT TYPE="HIDDEN" NAME="oldRADRegionId" VALUE="undefined<MaintValue:RADRegionId>">undefined<INPUT TYPE="HIDDEN" NAME="oldDescRADRegionId" VALUE="undefined<MaintValue:RADRegionId>">undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top></TD>undefined<TD ALIGN=left VALIGN=top></TD>undefined</TR>undefined</TABLE>undefined</DIV>undefined<DIV ID="divNotes" class="tabframe" style="visibility:hidden;height:400">undefined<TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0 width="100%" ID="Table9">undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblEmpNotes>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<TEXTAREA NAME="EmpNotes" onfocus="BgFocus('EmpNotes')" onblur="BgBlur('EmpNotes')" COLS=130 ROWS=20></TEXTAREA>undefined<BR>undefined<INPUT TYPE="HIDDEN" NAME="hidEmpNotes" VALUE="undefined<MaintValue:EmpNotes>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpNotes" VALUE="undefined<MaintValue:EmpNotes>">undefined</TD>undefined<TD></TD>undefined</TR>undefined<TR>undefined<TD></TD>undefined<TD ALIGN=left VALIGN=top colspan=2>undefined<input type=button value="Membership Changes" size="50" onclick="return CheckMemberChanges()" name="cmdChanges" ID="cmdChanges">undefined</TD>undefined</TR>undefined</TABLE>undefined</DIV>undefined<DIV ID="divComm" class="tabframe" style="visibility:hidden;height:400">undefined<TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0 ID="Table2"></TABLE>undefined</DIV>undefined<DIV ID="divFin" class="tabframe" style="visibility:hidden;height:400">undefined<TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0 ID="Table4">undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblEmpDebitOrder>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT id="EmpDebitOrder" TYPE="CHECKBOX" VALUE="True" name="EmpDebitOrder" onfocus="SetTooltip('EmpDebitOrder')" onblur="SetTooltip('')">undefined<INPUT TYPE="HIDDEN" NAME="oldEmpDebitOrder" VALUE="undefined<MaintValue:EmpDebitOrder>">undefined</TD>undefined<TD></TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblIsArrear>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT id="IsArrear" TYPE="CHECKBOX" VALUE="True" name="IsArrear" onfocus="SetTooltip('IsArrear')" onblur="SetTooltip('')">undefined<INPUT TYPE="HIDDEN" NAME="oldIsArrear" VALUE="undefined<MaintValue:IsArrear>">undefined</TD>undefined<TD></TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblCollectedInArrear>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT id="CollectedInArrear" TYPE="CHECKBOX" VALUE="True" name="CollectedInArrear" onfocus="SetTooltip('CollectedInArrear')" onblur="SetTooltip('')">undefined<INPUT TYPE="HIDDEN" NAME="oldCollectedInArrear" VALUE="undefined<MaintValue:CollectedInArrear>">undefined</TD>undefined<TD></TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<Phrase:Caption:IMntRADEmployerlblIsQuote>undefined</TD>undefined<TD ALIGN=left VALIGN=top>undefined<INPUT id="IsQuote" TYPE="CHECKBOX" VALUE="True" name="IsQuote" onfocus="SetTooltip('IsQuote')" onblur="SetTooltip('')">undefined<INPUT TYPE="HIDDEN" NAME="oldIsQuote" VALUE="undefined<MaintValue:IsQuote>">undefined</TD>undefined<TD></TD>undefined</TR>undefined</TABLE>undefined</DIV>undefined<DIV ID="divLogo" class="tabframe" style="visibility:hidden;height:400">undefined<br>undefined<TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0 ID="Table3">undefined<TR>undefined<td colspan=2>undefined<INPUT onkeypress="return EnterEventSubmit()" MAXLENGTH=200 SIZE=50 TYPE="TEXT" NAME="EmployerLogo" VALUE="">undefined<INPUT TYPE="HIDDEN" NAME="hidEmployerLogo" VALUE="undefined<MaintValue:EmployerLogo>">undefined<INPUT TYPE="HIDDEN" NAME="oldEmployerLogo" VALUE="undefined<MaintValue:EmployerLogo>">undefined</td>undefined</TR>undefined</FORM>undefined<tr>undefined<!--****FORM: ImageUpload starts here*** -->undefined<td colspan=2>
+                                                        Please click on the "Browse" button to select the image on your computer.undefined<br>undefined<br>undefined</td>undefined</tr>undefined<TR>undefined<TD ALIGN=right VALIGN=top>undefined<FORM NAME="ImageUpload" ID="ImageUpload" METHOD="POST" action="" enctype="multipart/form-data">
+                                                            File path:
+                                                    undefined</TD>undefined<TD ALIGN=left VALIGN=middle>undefined<INPUT TYPE="File" size="50" NAME="DocumentNameUpload" onfocus="BgFocus('DocumentNameUpload')" onblur="BgBlur('DocumentNameUpload')" ID="DocumentNameUpload">undefined<br>undefined<input type=button value="Upload" size="50" onclick="return CheckImageField()" name="uploadImage" ID="uploadImage">undefined</FORM>undefined</TD>undefined</TR>undefined<TR>undefined<TD ALIGN=right VALIGN=bottom>
+                                                        Logo:
+                                                    </TD>undefined<TD ALIGN=left VALIGN=bottom>undefined<DIV ID="DocumentImage"></DIV>undefined</TD>undefined</TR>undefined</TABLE>undefined</DIV>undefined<DIV ID="divFund" class="tabframe" style="visibility:hidden;height:400"></DIV>undefined<TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0 ID="Table6"></TABLE>undefined</DIV>undefined<DIV ID="divMember" class="tabframe" style="visibility:hidden;height:480;z-index:-50">undefined<FORM NAME="MemberUpload" ID="MemberUpload" METHOD="POST" action="" enctype="multipart/form-data">undefined<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 ID="Table5">undefined<tr>undefined<!--****FORM: MemberUpload starts here*** -->undefined<td colspan=4>undefined<strong>Please click on the "Browse" button to select the XLS file on your computer.</strong>undefined</td>undefined</tr>undefined<TR>undefined<TD ALIGN=right VALIGN=top>
+                                                                    File path:
+
+                                                                </TD>undefined<TD ALIGN=left VALIGN=middle>undefined<INPUT TYPE="file" size="50" NAME="MemberDocumentUpload" ID="MemberDocumentUpload" onchange="BrowseCheck()">undefined<br>undefined</TD>undefined<TD ALIGN=right VALIGN=top>
+                                                                    Effective Period:
+                                                                </TD>undefined<TD ALIGN=left VALIGN=top>undefined<CMBO:GLPERIOD>undefined<INPUT TYPE="HIDDEN" NAME="oldGLPeriodId" VALUE="undefined<MaintValue:GLPeriodId>">undefined<INPUT TYPE="HIDDEN" NAME="oldDescGLPeriodId" VALUE="undefined<MaintValue:GLPeriodId>">undefined<INPUT TYPE="HIDDEN" NAME="DescGLPeriodId" VALUE="">undefined</TD>undefined<TD>undefined<DIV ID="sLock" class="MustHaveField" style="visibility:hidden">LOCKED</DIV>undefined</TD>undefined</TR>undefined<TR>undefined<TD></TD>undefined<TD>undefined<input type=button value="Validate Member Data" size="50" onclick="return CheckMemberField(false)" name="validateMember" ID="validateMember">undefined<input type=button value="Import Member Data" size="50" onclick="return ImportMembers()" name="uploadMember" ID="uploadMember" undefined<MaintValue:EnableImport>>undefined</TD>undefined<TD>undefined<input type=button value="Export Member Data" size="50" onclick="return ExportMemberField()" name="ExportMember" ID="ExportMember">undefined</TD>undefined<TD>undefined<input type=button value="View Benefit Structure" size="50" onclick="return ViewCategoryInfo()" name="ViewCategory" ID="ViewCategory">undefined</TD>undefined</TR>undefined<TR>undefined<TD></TD>undefined<TD align=center>undefined<div id="LogLink" style="visibility:undefined<MaintValue:LinkVisible>" onclick="DisableImport(false)">undefined<a target=_blank href="Docs/MemberImport_undefined<MaintValue:RADEmployerID>_undefined<MaintValue:GLPeriodId>.txt" onclick="">View Import Log undefined</a>undefined</div>undefined<div id="divAllowPeriod">undefined<INPUT TYPE="HIDDEN" NAME="AllowPeriodId" id="AllowPeriodId" VALUE="undefined<MaintValue:AllowPeriodId>">undefined</div>undefined</TD>undefined</TR>undefined</TABLE>undefined</FORM>undefined<DIV ID="divBrwMember" style="visibility:inherit;z-index:-52"></DIV>undefined<DIV ID="DivMemberHelpTip" class="MustHave"></DIV>undefined</DIV>undefined<DIV ID="divTooltip" class="TooltipBar" style="visibility:hidden"></DIV>undefined</BODY>undefined</HTML>
